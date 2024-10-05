@@ -58,7 +58,7 @@ session_start();
 						<li>
 							<a href="#" class="icon solid fa-angle-down">Services</a>
 							<ul>
-								<li><a href="freight.php">Freight Transport</a></li>
+								<li><a href="freight/freight.php">Freight Transport</a></li>
 								<li><a href="warehousing.php">Warehousing</a></li>
 								<li><a href="logistics.php">Logistics Solutions</a></li>
 								<li>

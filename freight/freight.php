@@ -6,10 +6,10 @@ ini_set('display_errors', 1);
 <html>
 	<head>
 		<title>Freight Transport - TruckLogix</title>
-		<meta charset="utf-8" />
+		<meta charset="utf-8" />	
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<script src="assets/js/jquery.min.js"></script>
+		<link rel="stylesheet" href="../assets/css/main.css" /> <!-- Ensure the path is correct -->
+		<script src="../assets/js/jquery.min.js"></script> <!-- Ensure the path is correct -->
 	</head>
 	<body class="is-preload">
 		<div id="page-wrapper">
@@ -17,19 +17,19 @@ ini_set('display_errors', 1);
 			<!-- Header -->
 			<header id="header" style="height: 4em; display: flex; align-items: center;">
 				<h1 style="margin: 0; padding: 0;">
-					<a href="index.php" class="logo" style="display: flex; align-items: center; height: 100%;">
-						<img src="images/PEN_Logo-removebg-preview (2).png" alt="TruckLogix" style="max-height: 3em; width: auto; vertical-align: middle;">
+					<a href="../index.php" class="logo" style="display: flex; align-items: center; height: 100%;">
+						<img src="../images/PEN_Logo-removebg-preview (2).png" alt="TruckLogix" style="max-height: 3em; width: auto; vertical-align: middle;">
 					</a>
 				</h1>
 				<nav id="nav" style="margin-left: auto;">
 					<ul>
-						<li><a href="index.php">Home</a></li>
+						<li><a href="../index.php">Home</a></li>
 						<li>
 							<a href="#" class="icon solid fa-angle-down">Services</a>
 							<ul>
 								<li><a href="freight.php">Freight Transport</a></li>
-								<li><a href="warehousing.php">Warehousing</a></li>
-								<li><a href="logistics.php">Logistics Solutions</a></li>
+								<li><a href="../warehousing.php">Warehousing</a></li>
+								<li><a href="../logistics.php">Logistics Solutions</a></li>
 								<li>
 									<a href="#">Specialized Services</a>
 									<ul>
@@ -85,13 +85,13 @@ ini_set('display_errors', 1);
 		</div>
 
 		<!-- Scripts -->
-		<script src="assets/js/jquery.min.js"></script>
-		<script src="assets/js/jquery.dropotron.min.js"></script>
-		<script src="assets/js/jquery.scrollex.min.js"></script>
-		<script src="assets/js/browser.min.js"></script>
-		<script src="assets/js/breakpoints.min.js"></script>
-		<script src="assets/js/util.js"></script>
-		<script src="assets/js/main.js"></script>
+		<script src="../assets/js/jquery.min.js"></script> <!-- Ensure the path is correct -->
+		<script src="../assets/js/jquery.dropotron.min.js"></script>
+		<script src="../assets/js/jquery.scrollex.min.js"></script>
+		<script src="../assets/js/browser.min.js"></script>
+		<script src="../assets/js/breakpoints.min.js"></script>
+		<script src="../assets/js/util.js"></script>
+		<script src="../assets/js/main.js"></script>
 
 	</body>
 </html>
