@@ -19,7 +19,7 @@ session_start();
 			#header h1 a.logo { display: flex; align-items: center; height: 100%; }
 			#header h1 a.logo img { max-height: 3em; width: auto; vertical-align: middle; }
 			#header nav { display: flex; align-items: center; }
-			#loginForm {
+			#loginForm, #signupForm {
 				display: none;
 				position: fixed;
 				top: 50%;
@@ -32,11 +32,11 @@ session_start();
 				z-index: 1000;
 				width: 300px;
 			}
-			#loginForm h3 {
+			#loginForm h3, #signupForm h3 {
 				margin-bottom: 1em;
 				text-align: center;
 			}
-			#loginForm .error {
+			#loginForm .error, #signupForm .error {
 				color: red;
 				margin-top: 1em;
 				text-align: center;
@@ -77,6 +77,7 @@ session_start();
 							<li><a href="logout.php" class="button alt">Logout</a></li>
 						<?php else: ?>
 							<li><a href="#" class="button alt" id="loginButton">Login</a></li>
+							<li><a href="#" class="button alt" id="signupButton">Sign Up</a></li> <!-- Ensure this line is present -->
 						<?php endif; ?>
 					</ul>
 				</nav>
@@ -104,6 +105,35 @@ session_start();
 				<?php
 				if (isset($_GET['error'])) {
 					echo '<p class="error">' . htmlspecialchars($_GET['error']) . '</p>';
+				}
+				?>
+			</div>
+
+			<!-- Sign Up Form -->
+			<div id="signupForm" style="display: none;">
+				<form action="sign_up/signup.php" method="post"> <!-- Updated action path -->
+					<h3>Sign Up</h3>
+					<div class="row gtr-50 gtr-uniform">
+						<div class="col-12">
+							<input type="text" name="username" id="signupUsername" value="" placeholder="Username" required />
+						</div>
+						<div class="col-12">
+							<input type="email" name="email" id="signupEmail" value="" placeholder="Email" required />
+						</div>
+						<div class="col-12">
+							<input type="password" name="password" id="signupPassword" value="" placeholder="Password" required />
+						</div>
+						<div class="col-12">
+							<ul class="actions">
+								<li><input type="submit" value="Sign Up" class="primary" /></li>
+								<li><input type="button" value="Close" id="closeSignup" /></li>
+							</ul>
+						</div>
+					</div>
+				</form>
+				<?php
+				if (isset($_GET['signup_error'])) {
+					echo '<p class="error">' . htmlspecialchars($_GET['signup_error']) . '</p>';
 				}
 				?>
 			</div>
@@ -242,16 +272,29 @@ session_start();
 					$('#loginForm').fadeOut(300);
 				});
 
-				// Close login form when clicking outside
+				$('#signupButton').click(function(e) {
+					e.preventDefault();
+					$('#signupForm').fadeIn(300);
+				});
+
+				$('#closeSignup').click(function() {
+					$('#signupForm').fadeOut(300);
+				});
+
+				// Close forms when clicking outside
 				$(document).mouseup(function(e) {
-					var container = $("#loginForm");
-					if (!container.is(e.target) && container.has(e.target).length === 0) {
-						container.fadeOut(300);
+					var loginContainer = $("#loginForm");
+					var signupContainer = $("#signupForm");
+					if (!loginContainer.is(e.target) && loginContainer.has(e.target).length === 0) {
+						loginContainer.fadeOut(300);
+					}
+					if (!signupContainer.is(e.target) && signupContainer.has(e.target).length === 0) {
+						signupContainer.fadeOut(300);
 					}
 				});
 
 				// Prevent form from closing on submission
-				$('#loginForm form').submit(function() {
+				$('#loginForm form, #signupForm form').submit(function() {
 					return true; // Allow form submission
 				});
 			});
@@ -260,4 +303,4 @@ session_start();
 </html>
 
 <?php
-
+?>
