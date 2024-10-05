@@ -85,7 +85,7 @@ session_start();
 
 			<!-- Login Form -->
 			<div id="loginForm">
-				<form action="login.php" method="post">
+				<form action="login/login.php" method="post"> <!-- Ensure this path is correct -->
 					<h3>Login</h3>
 					<div class="row gtr-50 gtr-uniform">
 						<div class="col-12">
@@ -227,7 +227,7 @@ session_start();
 				<h2>Request a Free Quote</h2>
 				<p>Get in touch with our logistics experts for a customized shipping solution tailored to your needs.</p>
 
-				<form action="login.php" method="post">
+				<form action="login/login.php" method="post">
 					<div class="row gtr-50 gtr-uniform">
 						<div class="col-8 col-12-mobilep">
 							<input type="email" name="email" id="email" placeholder="Email Address" />
