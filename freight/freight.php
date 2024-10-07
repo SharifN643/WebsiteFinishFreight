@@ -10,6 +10,24 @@ ini_set('display_errors', 1);
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="../assets/css/main.css" /> <!-- Ensure the path is correct -->
 		<script src="../assets/js/jquery.min.js"></script> <!-- Ensure the path is correct -->
+		<style>
+			.service-options .checkbox-wrapper {
+				display: flex;
+				align-items: center;
+				margin-bottom: 10px;
+			}
+			.service-options input[type="checkbox"] {
+				appearance: auto;
+				-webkit-appearance: checkbox;
+				width: 20px;
+				height: 20px;
+				margin-right: 10px;
+			}
+			.service-options label {
+				display: inline;
+				margin-bottom: 0;
+			}
+		</style>
 	</head>
 	<body class="is-preload">
 		<div id="page-wrapper">
@@ -54,18 +72,103 @@ ini_set('display_errors', 1);
 					<p>Reliable and efficient freight solutions for your business</p>
 				</header>
 				<div class="box">
-					<h3>Our Freight Transport Solutions</h3>
-					<p>At TruckLogix, we offer comprehensive freight transport services designed to meet the diverse needs of businesses across industries. Our fleet of modern vehicles and experienced drivers ensure your goods are delivered safely and on time.</p>
-					<div class="row">
-						<div class="col-6 col-12-mobilep">
-							<h4>Road Freight</h4>
-							<p>Our extensive network of trucks covers nationwide routes, offering flexible and cost-effective road freight solutions for businesses of all sizes.</p>
+					<h3>Request Delivery</h3>
+					<form action="process_delivery.php" method="post">
+						<!-- Customer Information -->
+						<h4>Customer Information</h4>
+						<label for="fullName">Full Name:</label>
+						<input type="text" id="fullName" name="fullName" required>
+						
+						<label for="companyName">Company Name (Optional):</label>
+						<input type="text" id="companyName" name="companyName">
+						
+						<label for="email">Email Address:</label>
+						<input type="email" id="email" name="email" required>
+						
+						<label for="phone">Phone Number:</label>
+						<input type="tel" id="phone" name="phone" required>
+
+						<!-- Pickup Information -->
+						<h4>Pickup Information</h4>
+						<label for="pickupAddress">Pickup Address:</label>
+						<textarea id="pickupAddress" name="pickupAddress" required></textarea>
+						
+						<label for="pickupDate">Pickup Date:</label>
+						<input type="date" id="pickupDate" name="pickupDate" required>
+						
+						<label for="pickupTime">Preferred Pickup Time:</label>
+						<select id="pickupTime" name="pickupTime">
+							<option value="9-12">9 AM to 12 PM</option>
+							<option value="12-3">12 PM to 3 PM</option>
+							<option value="3-6">3 PM to 6 PM</option>
+						</select>
+						
+						<label for="pickupContact">Contact Person at Pickup Location:</label>
+						<input type="text" id="pickupContact" name="pickupContact">
+						
+						<label for="pickupContactNumber">Contact Number for Pickup Location:</label>
+						<input type="tel" id="pickupContactNumber" name="pickupContactNumber">
+
+						<!-- Delivery Information -->
+						<h4>Delivery Information</h4>
+						<label for="deliveryAddress">Delivery Address:</label>
+						<textarea id="deliveryAddress" name="deliveryAddress" required></textarea>
+						
+						<label for="deliveryDate">Delivery Date (Optional):</label>
+						<input type="date" id="deliveryDate" name="deliveryDate">
+						
+						<label for="deliveryTime">Preferred Delivery Time (Optional):</label>
+						<select id="deliveryTime" name="deliveryTime">
+							<option value="9-12">9 AM to 12 PM</option>
+							<option value="12-3">12 PM to 3 PM</option>
+							<option value="3-6">3 PM to 6 PM</option>
+						</select>
+
+						<!-- Item Information -->
+						<h4>Item Information</h4>
+						<label for="itemType">Item Type:</label>
+						<select id="itemType" name="itemType">
+							<option value="documents">Documents</option>
+							<option value="electronics">Electronics</option>
+							<option value="furniture">Furniture</option>
+							<option value="fragile">Fragile items</option>
+						</select>
+						
+						<label for="itemDescription">Item Description:</label>
+						<textarea id="itemDescription" name="itemDescription"></textarea>
+						
+						<label for="itemQuantity">Item Quantity:</label>
+						<input type="number" id="itemQuantity" name="itemQuantity" required>
+						
+						<label for="itemWeight">Weight of Item (kg):</label>
+						<input type="number" id="itemWeight" name="itemWeight" required>
+						
+						<label for="itemDimensions">Dimensions of Item (cm):</label>
+						<input type="text" id="itemDimensions" name="itemDimensions" placeholder="L x W x H">
+						
+						<label for="specialInstructions">Special Handling Instructions:</label>
+						<textarea id="specialInstructions" name="specialInstructions"></textarea>
+
+						<!-- Service Options -->
+						<h4>Service Options</h4>
+						<div class="service-options">		
+							<div class="checkbox-wrapper">
+								<input type="checkbox" id="insurance" name="insurance" value="yes">
+								<label for="insurance">Add insurance for this delivery</label>
+							</div>
+							<div class="checkbox-wrapper">
+								<input type="checkbox" id="packaging" name="packaging" value="yes">
+								<label for="packaging">Require packaging services</label>
+							</div>
 						</div>
-						<div class="col-6 col-12-mobilep">
-							<h4>Intermodal Transport</h4>
-							<p>We combine road, rail, and sea shipping to provide efficient intermodal transport services, optimizing your supply chain and reducing costs.</p>
-						</div>
-					</div>
+
+						<!-- Additional Information -->
+						<h4>Additional Information</h4>
+						<textarea name="additionalInfo" placeholder="Any other specific notes"></textarea>
+
+						<!-- Submit Button -->
+						<input type="submit" value="Request Delivery" class="primary">
+					</form>
 				</div>
 			</section>
 

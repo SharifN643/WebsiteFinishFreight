@@ -8,12 +8,12 @@ ini_set('display_errors', 1);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Retrieve and sanitize input
-    $username = trim($_POST['username']);
+    $full_name = trim($_POST['username']); // Change variable name to $full_name
     $email = trim($_POST['email']);
     $password = $_POST['password'];
 
     // Validate input
-    if (empty($username) || empty($email) || empty($password)) {
+    if (empty($full_name) || empty($email) || empty($password)) {
         header("Location: ../index.php?signup_error=Please fill in all fields.");
         exit();
     }
@@ -23,12 +23,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
 
-    // Check if username or email already exists
-    $stmt = $conn->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
+    // Check if full_name or email already exists
+    $stmt = $conn->prepare("SELECT user_id FROM users WHERE full_name = ? OR email = ?"); // Use 'full_name' instead of 'username'
     if (!$stmt) {
         die("Prepare failed: (" . $conn->errno . ") " . $conn->error);
     }
-    $stmt->bind_param("ss", $username, $email);
+    $stmt->bind_param("ss", $full_name, $email); // Bind $full_name instead of $username
     $stmt->execute();
     $stmt->store_result();
 
@@ -41,15 +41,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
     // Insert new user into the database
-    $stmt = $conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, 'customer')");
+    $stmt = $conn->prepare("INSERT INTO users (full_name, email, password, role) VALUES (?, ?, ?, 'customer')"); // Use 'full_name' instead of 'username'
     if (!$stmt) {
         die("Prepare failed: (" . $conn->errno . ") " . $conn->error);
     }
-    $stmt->bind_param("sss", $username, $email, $hashed_password);
+    $stmt->bind_param("sss", $full_name, $email, $hashed_password); // Bind $full_name instead of $username
 
     if ($stmt->execute()) {
         $_SESSION['loggedin'] = true;
-        $_SESSION['username'] = $username;
+        $_SESSION['user_id'] = $conn->insert_id; // Store the new user's ID
+        $_SESSION['username'] = $full_name;
+        $_SESSION['role'] = 'customer'; // Default role
         header("Location: ../index.php");
     } else {
         header("Location: ../index.php?signup_error=Error during registration. Please try again.");
