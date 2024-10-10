@@ -169,6 +169,11 @@ ini_set('display_errors', 1);
 						<!-- Submit Button -->
 						<input type="submit" value="Request Delivery" class="primary">
 					</form>
+
+					<!-- View Booking Button -->
+					<div style="margin-top: 20px;">
+						<a href="view_booking.php" class="button">View Booking</a>
+					</div>
 				</div>
 			</section>
 

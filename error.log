@@ -1,0 +1,29 @@
+[2024-10-07 05:44:54] Signup Error: Empty fields
+[2024-10-07 05:46:10] Signup Error: Empty fields
+[2024-10-07 05:52:01] Signup Error: Empty fields
+[2024-10-07 05:52:12] Signup Error: Empty fields
+[2024-10-07 05:54:51] Signup Error: Empty fields
+[2024-10-07 05:58:33] Signup Error: Empty fields
+[2024-10-07 05:58:59] Signup Error: Empty fields
+[2024-10-07 06:01:52] Signup Error: The following fields are empty: full_name
+[2024-10-07 06:04:37] Signup Error: The following fields are empty: full_name
+[2024-10-07 06:05:51] Signup Error: User successfully registered: cust5, sharifnorakmal@gmail.com
+[2024-10-07 06:07:18] Signup Error: Email already taken: sharifnorakmal@gmail.com
+[2024-10-07 06:13:34] Signup Error: The following fields are empty: username
+[2024-10-07 06:13:48] Signup Error: The following fields are empty: username
+[2024-10-07 06:16:03] Signup Error: The following fields are empty: username
+[2024-10-07 06:18:20] Signup Error: The following fields are empty: username
+[2024-10-07 06:18:33] Signup Error: The following fields are empty: username
+[2024-10-07 06:25:54] Signup Error: The following fields are empty: username
+[2024-10-07 06:27:11] Signup Error: Username or email already taken: help@gmail.com, sharif58004@gmail.com
+[2024-10-07 06:39:32] Signup Error: Username or email already taken: help@gmail.com, hiihelp@gmail.com
+[2024-10-07 06:41:39] Login Error: User not found.
+[2024-10-07 06:53:14] Login Error: User not found: sharif58004@gmail.com
+[2024-10-07 06:59:48] Login Error: User not found: customer
+[2024-10-10 06:28:41] Signup Error: Password must be at least 6 characters.
+[2024-10-10 06:30:58] Signup Error: Received POST data: Username - cust1, Email - s@gmail.com
+[2024-10-10 06:30:58] Signup Error: Password must be at least 6 characters.
+[2024-10-10 06:31:19] Signup Error: Received POST data: Username - cust1, Email - s@gmail.com
+[2024-10-10 06:31:19] Signup Error: Registration successful for user: cust1
+[2024-10-10 06:38:18] Signup Error: Received POST data: Username - cust1, Email - s@gmail.com
+[2024-10-10 06:38:18] Signup Error: Password must be at least 6 characters.

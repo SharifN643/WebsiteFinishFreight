@@ -2,9 +2,13 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 session_start();
-// require_once 'db_connect.php';  // Uncomment this line when you have set up your database
-?>
+require_once 'db_connect.php'; // Ensure this path is correct
 
+// Handle display messages
+$login_error = $_GET['error'] ?? '';
+$signup_error = $_GET['signup_error'] ?? '';
+$signup_success = isset($_GET['signup_success']) ? true : false;
+?>
 <!DOCTYPE HTML>
 <html>
 	<head>
@@ -15,10 +19,7 @@ session_start();
 		<link rel="stylesheet" href="assets/css/fontawesome-all.min.css" />
 		<script src="assets/js/jquery.min.js"></script>
 		<style>
-			#header h1 { margin: 0; padding: 0; }
-			#header h1 a.logo { display: flex; align-items: center; height: 100%; }
-			#header h1 a.logo img { max-height: 3em; width: auto; vertical-align: middle; }
-			#header nav { display: flex; align-items: center; }
+			/* Styles for Login and Sign Up Forms */
 			#loginForm, #signupForm {
 				display: none;
 				position: fixed;
@@ -41,15 +42,44 @@ session_start();
 				margin-top: 1em;
 				text-align: center;
 			}
+			#signupForm .success {
+				color: green;
+				margin-top: 1em;
+				text-align: center;
+			}
+			/* Form inputs and buttons */
+			#loginForm input, #signupForm input {
+				width: 100%;
+				margin-bottom: 1em;
+			}
+			#loginForm input[type="submit"], #signupForm input[type="submit"],
+			#loginForm input[type="button"], #signupForm input[type="button"] {
+				width: 48%;
+				display: inline-block;
+			}
+			#loginForm input[type="button"], #signupForm input[type="button"] {
+				float: right;
+			}
+			/* Overlay */
+			#formOverlay {
+				display: none;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background: rgba(0, 0, 0, 0.5);
+				z-index: 999;
+			}
 		</style>
 	</head>
 	<body class="landing is-preload">
 		<div id="page-wrapper">
 			<!-- Header -->
 			<header id="header" style="height: 4em; display: flex; align-items: center;">
-				<h1>
-					<a href="index.php" class="logo">
-						<img src="images/PEN_Logo-removebg-preview (2).png" alt="TruckLogix">
+				<h1 style="margin: 0; padding: 0;">
+					<a href="index.php" class="logo" style="display: flex; align-items: center; height: 100%;">
+						<img src="images/PEN_Logo-removebg-preview (2).png" alt="TruckLogix" style="max-height: 3em; width: auto; vertical-align: middle;">
 					</a>
 				</h1>
 				<nav id="nav" style="margin-left: auto;">
@@ -77,65 +107,60 @@ session_start();
 							<li><a href="logout.php" class="button alt">Logout</a></li>
 						<?php else: ?>
 							<li><a href="#" class="button alt" id="loginButton">Login</a></li>
-							<li><a href="#" class="button alt" id="signupButton">Sign Up</a></li> <!-- Ensure this line is present -->
+							<li><a href="#" class="button alt" id="signupButton">Sign Up</a></li>
 						<?php endif; ?>
 					</ul>
 				</nav>
 			</header>
 
+			<!-- Overlay for Forms -->
+			<div id="formOverlay"></div>
+
 			<!-- Login Form -->
 			<div id="loginForm">
-				<form action="login/login.php" method="post"> <!-- Ensure this path is correct -->
+				<form action="login/login.php" method="post">
 					<h3>Login</h3>
-					<div class="row gtr-50 gtr-uniform">
-						<div class="col-12">
-							<input type="text" name="username" id="username" value="" placeholder="Username" required />
-						</div>
-						<div class="col-12">
-							<input type="password" name="password" id="password" value="" placeholder="Password" required />
-						</div>
-						<div class="col-12">
-							<ul class="actions">
-								<li><input type="submit" value="Login" class="primary" /></li>
-								<li><input type="button" value="Close" id="closeLogin" /></li>
-							</ul>
-						</div>
+					<div>
+						<input type="text" name="username" id="loginUsername" placeholder="Username" required />
 					</div>
+					<div>
+						<input type="password" name="password" id="loginPassword" placeholder="Password" required />
+					</div>
+					<div>
+						<input type="submit" value="Login" class="primary" />
+						<input type="button" value="Close" id="closeLogin" />
+					</div>
+					<?php if (!empty($login_error)): ?>
+						<p class="error"><?php echo htmlspecialchars($login_error); ?></p>
+					<?php endif; ?>
 				</form>
-				<?php
-				if (isset($_GET['error'])) {
-					echo '<p class="error">' . htmlspecialchars($_GET['error']) . '</p>';
-				}
-				?>
 			</div>
 
 			<!-- Sign Up Form -->
-			<div id="signupForm" style="display: none;">
-				<form action="sign_up/signup.php" method="post"> <!-- Updated action path -->
+			<div id="signupForm">
+				<form action="sign_up/signup.php" method="post" id="signupFormElement">
 					<h3>Sign Up</h3>
-					<div class="row gtr-50 gtr-uniform">
-						<div class="col-12">
-							<input type="text" name="username" id="signupUsername" value="" placeholder="Username" required />
-						</div>
-						<div class="col-12">
-							<input type="email" name="email" id="signupEmail" value="" placeholder="Email" required />
-						</div>
-						<div class="col-12">
-							<input type="password" name="password" id="signupPassword" value="" placeholder="Password" required />
-						</div>
-						<div class="col-12">
-							<ul class="actions">
-								<li><input type="submit" value="Sign Up" class="primary" /></li>
-								<li><input type="button" value="Close" id="closeSignup" /></li>
-							</ul>
-						</div>
+					<div>
+						<input type="text" name="username" id="signupUsername" placeholder="Username" required />
 					</div>
+					<div>
+						<input type="email" name="email" id="signupEmail" placeholder="Email" required />
+					</div>
+					<div>
+						<input type="password" name="password" id="signupPassword" placeholder="Password" required />
+						<p id="passwordError" class="error" style="display: none;">Password must be at least 6 characters long.</p>
+					</div>
+					<div>
+						<input type="submit" value="Sign Up" class="primary" />
+						<input type="button" value="Close" id="closeSignup" />
+					</div>
+					<?php if (!empty($signup_error)): ?>
+						<p class="error"><?php echo htmlspecialchars($signup_error); ?></p>
+					<?php endif; ?>
+					<?php if ($signup_success): ?>
+						<p class="success">Signup successful! You can now log in.</p>
+					<?php endif; ?>
 				</form>
-				<?php
-				if (isset($_GET['signup_error'])) {
-					echo '<p class="error">' . htmlspecialchars($_GET['signup_error']) . '</p>';
-				}
-				?>
 			</div>
 
 			<!-- Banner -->
@@ -148,7 +173,7 @@ session_start();
 				</ul>
 			</section>
 
-			<!-- Main -->
+			<!-- Main Content -->
 			<section id="main" class="container">
 				<section class="box special">
 					<header class="major">
@@ -192,7 +217,6 @@ session_start();
 
 				<div class="row">
 					<div class="col-6 col-12-narrower">
-
 						<section class="box special">
 							<span class="image featured">
 								<img src="images\MultipleTransport.png" alt="Intermodal Transport" style="object-fit: cover; width: 100%; height: 200px;" />
@@ -203,34 +227,31 @@ session_start();
 								<li><a href="#" class="button alt">Learn More</a></li>
 							</ul>
 						</section>
-
 					</div>
 					<div class="col-6 col-12-narrower">
-
 						<section class="box special">
 							<span class="image featured">
-								<img src="images\Untitled design (3).png" alt="Custom Logistics Solutions" style="object-fit: cover; width: 100%; height: 200px;" />
+								<img src="images\Untitled design (9).png" alt="Custom Logistics" style="object-fit: cover; width: 100%; height: 200px;" />
 							</span>
 							<h3>Custom Logistics Solutions</h3>
-							<p>Our team of experts designs tailored logistics strategies to meet your unique business needs. From inventory management to last-mile delivery, we provide end-to-end solutions that drive efficiency and reduce costs.</p>
+							<p>Our team of experts designs tailored logistics solutions to meet your unique business needs. From specialized handling to complex supply chain management, we've got you covered.</p>
 							<ul class="actions special">
 								<li><a href="#" class="button alt">Learn More</a></li>
 							</ul>
 						</section>
-
 					</div>
 				</div>
 			</section>
 
-			<!-- CTA -->
+			<!-- CTA Section -->
 			<section id="cta">
 				<h2>Request a Free Quote</h2>
 				<p>Get in touch with our logistics experts for a customized shipping solution tailored to your needs.</p>
 
-				<form action="login/login.php" method="post">
+				<form action="quote/quote.php" method="post">
 					<div class="row gtr-50 gtr-uniform">
 						<div class="col-8 col-12-mobilep">
-							<input type="email" name="email" id="email" placeholder="Email Address" />
+							<input type="email" name="email" id="quoteEmail" placeholder="Email Address" required />
 						</div>
 						<div class="col-4 col-12-mobilep">
 							<input type="submit" value="Get Quote" class="fit" />
@@ -248,7 +269,8 @@ session_start();
 					<li><a href="#" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
 				</ul>
 				<ul class="copyright">
-					<li>&copy; TruckLogix. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					<li>&copy; TruckLogix. All rights reserved.</li>
+					<li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
 				</ul>
 			</footer>
 		</div>
@@ -263,44 +285,57 @@ session_start();
 		<script src="assets/js/main.js"></script>
 		<script>
 			$(document).ready(function() {
+				// Open Login Form
 				$('#loginButton').click(function(e) {
 					e.preventDefault();
+					$('#formOverlay').fadeIn(300);
 					$('#loginForm').fadeIn(300);
 				});
 
+				// Close Login Form
 				$('#closeLogin').click(function() {
 					$('#loginForm').fadeOut(300);
+					$('#formOverlay').fadeOut(300);
 				});
 
+				// Open Sign Up Form
 				$('#signupButton').click(function(e) {
 					e.preventDefault();
+					$('#formOverlay').fadeIn(300);
 					$('#signupForm').fadeIn(300);
 				});
 
+				// Close Sign Up Form
 				$('#closeSignup').click(function() {
 					$('#signupForm').fadeOut(300);
+					$('#formOverlay').fadeOut(300);
 				});
 
 				// Close forms when clicking outside
-				$(document).mouseup(function(e) {
-					var loginContainer = $("#loginForm");
-					var signupContainer = $("#signupForm");
-					if (!loginContainer.is(e.target) && loginContainer.has(e.target).length === 0) {
-						loginContainer.fadeOut(300);
-					}
-					if (!signupContainer.is(e.target) && signupContainer.has(e.target).length === 0) {
-						signupContainer.fadeOut(300);
+				$('#formOverlay').click(function() {
+					$('#loginForm, #signupForm').fadeOut(300);
+					$(this).fadeOut(300);
+				});
+
+				// Password validation
+				$('#signupPassword').on('input', function() {
+					var password = $(this).val();
+					if (password.length < 6) {
+						$('#passwordError').show();
+					} else {
+						$('#passwordError').hide();
 					}
 				});
 
-				// Prevent form from closing on submission
-				$('#loginForm form, #signupForm form').submit(function() {
-					return true; // Allow form submission
+				// Form submission validation
+				$('#signupFormElement').submit(function(e) {
+					var password = $('#signupPassword').val();
+					if (password.length < 6) {
+						e.preventDefault(); // Prevent form submission
+						$('#passwordError').show();
+					}
 				});
 			});
 		</script>
 	</body>
 </html>
-
-<?php
-?>
