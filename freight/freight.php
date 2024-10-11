@@ -1,6 +1,32 @@
 <?php
+session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+
+// Check if user is logged in and has admin role
+$isAdmin = isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true && isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
+
+// Redirect admin users to admin_freight.php
+if ($isAdmin) {
+    header("Location: admin_freight.php");
+    exit();
+}
+
+// Include database connection
+require_once '../db_connect.php';
+
+// Function to get recent deliveries (for admin view)
+function getRecentDeliveries($conn, $limit = 5) {
+    $sql = "SELECT id, fullName, itemType, pickupDate, status FROM deliveries ORDER BY pickupDate DESC LIMIT ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $limit);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+
+// Get recent deliveries if user is admin
+$recentDeliveries = $isAdmin ? getRecentDeliveries($conn) : [];
 ?>
 <!DOCTYPE HTML>
 <html>
@@ -26,6 +52,27 @@ ini_set('display_errors', 1);
 			.service-options label {
 				display: inline;
 				margin-bottom: 0;
+			}
+			.admin-panel {
+				background-color: #f8f8f8;
+				border: 1px solid #ddd;
+				padding: 20px;
+				margin-bottom: 20px;
+				border-radius: 5px;
+			}
+			.admin-panel h3 {
+				margin-top: 0;
+			}
+			.admin-panel table {
+				width: 100%;
+			}
+			.admin-panel th, .admin-panel td {
+				padding: 10px;
+				text-align: left;
+				border-bottom: 1px solid #ddd;
+			}
+			.admin-panel th {
+				background-color: #f2f2f2;
 			}
 		</style>
 	</head>
@@ -71,6 +118,45 @@ ini_set('display_errors', 1);
 					<h2>Freight Transport Services</h2>
 					<p>Reliable and efficient freight solutions for your business</p>
 				</header>
+
+				<?php if ($isAdmin): ?>
+				<!-- Admin Panel -->
+				<div class="box admin-panel">
+					<h3>Admin Dashboard</h3>
+					<p>Welcome, Admin! Here's a quick overview of recent deliveries:</p>
+					<table>
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Customer</th>
+								<th>Item Type</th>
+								<th>Pickup Date</th>
+								<th>Status</th>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ($recentDeliveries as $delivery): ?>
+							<tr>
+								<td><?php echo $delivery['id']; ?></td>
+								<td><?php echo htmlspecialchars($delivery['fullName']); ?></td>
+								<td><?php echo htmlspecialchars($delivery['itemType']); ?></td>
+								<td><?php echo $delivery['pickupDate']; ?></td>
+								<td><?php echo htmlspecialchars($delivery['status']); ?></td>
+								<td>
+									<a href="edit_delivery.php?id=<?php echo $delivery['id']; ?>" class="button small">Edit</a>
+								</td>
+							</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+					<div style="margin-top: 20px;">
+						<a href="admin_deliveries.php" class="button">View All Deliveries</a>
+						<a href="admin_dashboard.php" class="button alt">Admin Dashboard</a>
+					</div>
+				</div>
+				<?php endif; ?>
+
 				<div class="box">
 					<h3>Request Delivery</h3>
 					<form action="process_delivery.php" method="post">

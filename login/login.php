@@ -23,7 +23,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Perform login logic here
-    $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE username = ?");
+    $stmt = $conn->prepare("SELECT user_id, username, password FROM users WHERE username = ?");
+    if (!$stmt) {
+        logError("Prepare failed: " . $conn->error);
+        $_SESSION['login_error'] = "An error occurred. Please try again later.";
+        header("Location: ../index.php");
+        exit();
+    }
+    
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -32,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $user = $result->fetch_assoc();
         if (password_verify($password, $user['password'])) {
             $_SESSION['loggedin'] = true;
-            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['username'] = $user['username'];
             logError("Successful login for user: $username");
             header("Location: ../index.php");
