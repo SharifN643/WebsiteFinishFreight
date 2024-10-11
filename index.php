@@ -2,14 +2,22 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 session_start();
-require_once 'db_connect.php'; // Ensure this path is correct
+require_once 'db_connect.php';
 
 // Handle display messages
-$login_error = $_GET['error'] ?? '';
-$signup_error = $_GET['signup_error'] ?? '';
-$signup_success = isset($_GET['signup_success']) ? true : false;
-?>
-<!DOCTYPE HTML>
+$login_error = $_SESSION['login_error'] ?? '';
+unset($_SESSION['login_error']);
+$signup_error = $_SESSION['signup_error'] ?? '';
+$signup_success = isset($_SESSION['signup_success']) ? true : false;
+$welcome = isset($_GET['welcome']) ? true : false;
+$username = $_SESSION['username'] ?? '';
+
+// Clear session variables after use
+unset($_SESSION['signup_error'], $_SESSION['signup_success']);
+
+// Check if user is logged in
+$is_logged_in = isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;
+?><!DOCTYPE HTML>
 <html>
 	<head>
 		<title>TruckLogix</title>
@@ -71,6 +79,18 @@ $signup_success = isset($_GET['signup_success']) ? true : false;
 				background: rgba(0, 0, 0, 0.5);
 				z-index: 999;
 			}
+			#signupForm, #formOverlay {
+				display: none;
+			}
+			/* Add this to your existing styles */
+			.welcome-message {
+				background-color: #4CAF50;
+				color: white;
+				padding: 10px;
+				margin-bottom: 20px;
+				border-radius: 5px;
+				text-align: center;
+			}
 		</style>
 	</head>
 	<body class="landing is-preload">
@@ -102,8 +122,8 @@ $signup_success = isset($_GET['signup_success']) ? true : false;
 								</li>
 							</ul>
 						</li>
-						<?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): ?>
-							<li><a href="#" class="button">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></a></li>
+						<?php if ($is_logged_in): ?>
+							<li><a href="#" class="button">Welcome, <?php echo htmlspecialchars($username); ?></a></li>
 							<li><a href="logout.php" class="button alt">Logout</a></li>
 						<?php else: ?>
 							<li><a href="#" class="button alt" id="loginButton">Login</a></li>
@@ -148,7 +168,7 @@ $signup_success = isset($_GET['signup_success']) ? true : false;
 					</div>
 					<div>
 						<input type="password" name="password" id="signupPassword" placeholder="Password" required />
-						<p id="passwordError" class="error" style="display: none;">Password must be at least 6 characters long.</p>
+						<p id="passwordError" class="error" style="display: none;"></p>
 					</div>
 					<div>
 						<input type="submit" value="Sign Up" class="primary" />
@@ -285,6 +305,7 @@ $signup_success = isset($_GET['signup_success']) ? true : false;
 		<script src="assets/js/main.js"></script>
 		<script>
 			$(document).ready(function() {
+				console.log('Document ready');
 				// Open Login Form
 				$('#loginButton').click(function(e) {
 					e.preventDefault();
@@ -292,17 +313,18 @@ $signup_success = isset($_GET['signup_success']) ? true : false;
 					$('#loginForm').fadeIn(300);
 				});
 
-				// Close Login Form
-				$('#closeLogin').click(function() {
-					$('#loginForm').fadeOut(300);
-					$('#formOverlay').fadeOut(300);
-				});
-
 				// Open Sign Up Form
 				$('#signupButton').click(function(e) {
 					e.preventDefault();
 					$('#formOverlay').fadeIn(300);
 					$('#signupForm').fadeIn(300);
+					console.log('Sign-up button clicked'); // Add this line for debugging
+				});
+
+				// Close Login Form
+				$('#closeLogin').click(function() {
+					$('#loginForm').fadeOut(300);
+					$('#formOverlay').fadeOut(300);
 				});
 
 				// Close Sign Up Form
@@ -317,24 +339,63 @@ $signup_success = isset($_GET['signup_success']) ? true : false;
 					$(this).fadeOut(300);
 				});
 
-				// Password validation
+				// Password validation for sign up
 				$('#signupPassword').on('input', function() {
 					var password = $(this).val();
+					var $passwordError = $('#passwordError');
+					
 					if (password.length < 6) {
-						$('#passwordError').show();
+						$passwordError.text('Password must be at least 6 characters long').show();
+					} else if (!/[A-Z]/.test(password)) {
+						$passwordError.text('Password must contain at least one uppercase letter').show();
+					} else if (!/[a-z]/.test(password)) {
+						$passwordError.text('Password must contain at least one lowercase letter').show();
+					} else if (!/[0-9]/.test(password)) {
+						$passwordError.text('Password must contain at least one number').show();
 					} else {
-						$('#passwordError').hide();
+						$passwordError.hide();
 					}
 				});
 
-				// Form submission validation
+				// Form submission
 				$('#signupFormElement').submit(function(e) {
+					e.preventDefault();
+					var username = $('#signupUsername').val().trim();
+					var email = $('#signupEmail').val().trim();
 					var password = $('#signupPassword').val();
-					if (password.length < 6) {
-						e.preventDefault(); // Prevent form submission
-						$('#passwordError').show();
+
+					if (username === '' || email === '' || password === '') {
+						alert('Please fill in all fields');
+						return;
+					}
+
+					if ($('#passwordError').is(':visible')) {
+						alert('Please correct the password errors before submitting');
+						return;
+					}
+
+					// If all validations pass, submit the form
+					this.submit();
+				});
+
+				<?php if (!$is_logged_in): ?>
+				// Login form submission
+				$('#loginForm form').submit(function(e) {
+					var username = $('#loginUsername').val().trim();
+					var password = $('#loginPassword').val();
+
+					if (username === '' || password === '') {
+						e.preventDefault();
+						alert('Please enter both username and password.');
 					}
 				});
+				<?php endif; ?>
+
+				<?php if ($welcome || $signup_success): ?>
+				// Automatically open the login form if the user just signed up
+				$('#formOverlay').fadeIn(300);
+				$('#loginForm').fadeIn(300);
+				<?php endif; ?>
 			});
 		</script>
 	</body>

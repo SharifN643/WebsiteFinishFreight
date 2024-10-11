@@ -11,60 +11,43 @@ function logError($message) {
     error_log(date('[Y-m-d H:i:s] ') . "Login Error: " . $message . "\n", 3, "../error.log");
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Retrieve and sanitize input
-    $username = trim($_POST['username'] ?? '');
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    // Validate input
     if (empty($username) || empty($password)) {
-        $error_message = 'Please fill in both username and password.';
-        logError($error_message);
-        header("Location: ../index.php?error=" . urlencode($error_message));
+        logError("Login attempt with empty username or password");
+        $_SESSION['login_error'] = "Please enter both username and password.";
+        header("Location: ../index.php");
         exit();
     }
 
-    // Fetch user data using prepared statements
-    $stmt = $conn->prepare("SELECT user_id, password, role FROM users WHERE username = ?");
-    if (!$stmt) {
-        logError("Prepare Statement Failed: " . $conn->error);
-        header("Location: ../index.php?error=Database error. Please try again.");
-        exit();
-    }
+    // Perform login logic here
+    $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
-    $stmt->store_result();
+    $result = $stmt->get_result();
 
-    if ($stmt->num_rows === 1) {
-        $stmt->bind_result($user_id, $hashed_password, $role);
-        $stmt->fetch();
-
-        // Verify the password
-        if (password_verify($password, $hashed_password)) {
-            // Password is correct, set session variables
+    if ($result->num_rows === 1) {
+        $user = $result->fetch_assoc();
+        if (password_verify($password, $user['password'])) {
             $_SESSION['loggedin'] = true;
-            $_SESSION['user_id'] = $user_id;
-            $_SESSION['username'] = $username;
-            $_SESSION['role'] = $role;
-            $stmt->close();
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['username'] = $user['username'];
+            logError("Successful login for user: $username");
             header("Location: ../index.php");
             exit();
         } else {
-            // Incorrect password
-            $error_message = 'Invalid username or password.';
-            logError("Invalid password for user: $username");
-            $stmt->close();
-            header("Location: ../index.php?error=" . urlencode($error_message));
-            exit();
+            logError("Failed login attempt for user: $username (incorrect password)");
+            $_SESSION['login_error'] = "Invalid username or password.";
         }
     } else {
-        // User not found
-        $error_message = 'Invalid username or password.';
-        logError("User not found: $username");
-        $stmt->close();
-        header("Location: ../index.php?error=" . urlencode($error_message));
-        exit();
+        logError("Failed login attempt for non-existent user: $username");
+        $_SESSION['login_error'] = "Invalid username or password.";
     }
+
+    header("Location: ../index.php");
+    exit();
 } else {
     // Invalid request method
     header("Location: ../index.php");

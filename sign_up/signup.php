@@ -1,102 +1,90 @@
 <?php
 session_start();
-require_once '../db_connect.php'; // Adjust the path if necessary
+require_once '../db_connect.php';
 
-// Enable error reporting for development (disable in production)
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Function to log errors
-function logError($message) {
-    error_log(date('[Y-m-d H:i:s] ') . "Signup Error: " . $message . "\n", 3, "../error.log");
+// Function to sanitize user input
+function sanitize_input($data) {
+    return htmlspecialchars(stripslashes(trim($data)));
 }
 
-// Check database connection
-if ($conn->connect_error) {
-    logError("Database connection failed: " . $conn->connect_error);
-    die("Connection failed: " . $conn->connect_error);
+// Function to log errors and set session messages
+function set_error($message) {
+    error_log("Signup Error: " . $message);
+    $_SESSION['signup_error'] = $message;
+    header("Location: ../index.php");
+    exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Retrieve and sanitize input
-    $username = trim($_POST['username'] ?? '');
-    $email = trim($_POST['email'] ?? '');
+// Check if the form is submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Sanitize and validate user input
+    $username = sanitize_input($_POST['username'] ?? '');
+    $email = sanitize_input($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    logError("Received POST data: Username - $username, Email - $email"); // Log received data
-
-    // Validate input
-    $errors = [];
+    // Validate username
     if (empty($username)) {
-        $errors[] = 'Username is required.';
+        set_error("Username is required");
     }
+
+    // Validate email
     if (empty($email)) {
-        $errors[] = 'Email is required.';
+        set_error("Email is required");
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = 'Invalid email format.';
+        set_error("Invalid email format");
     }
+
+    // Validate password
     if (empty($password)) {
-        $errors[] = 'Password is required.';
+        set_error("Password is required");
     } elseif (strlen($password) < 6) {
-        $errors[] = 'Password must be at least 6 characters.';
+        set_error("Password must be at least 6 characters long");
     }
 
-    if (!empty($errors)) {  
-        // Redirect back with errors
-        $error_message = implode(' ', $errors);
-        logError($error_message);
-        header("Location: ../index.php?signup_error=" . urlencode($error_message));
-        exit();
-    }
-
-    // Check if username or email already exists using prepared statements
-    $stmt = $conn->prepare("SELECT user_id FROM users WHERE username = ? OR email = ?");
+    // Check if username or email already exists
+    $stmt = $conn->prepare("SELECT * FROM users WHERE username = ? OR email = ?");
     if (!$stmt) {
-        logError("Prepare Statement Failed: " . $conn->error);
-        die("Prepare failed: " . $conn->error); // Output error for debugging
+        set_error("Database error: " . $conn->error);
     }
     $stmt->bind_param("ss", $username, $email);
     $stmt->execute();
-    $stmt->store_result();
+    $result = $stmt->get_result();
 
-    if ($stmt->num_rows > 0) {
-        // Username or email already taken
-        logError("Username or Email already taken: Username - $username, Email - $email");
+    if ($result->num_rows > 0) {
         $stmt->close();
-        header("Location: ../index.php?signup_error=Username or email already taken.");
-        exit();
+        set_error("Username or email already exists");
     }
     $stmt->close();
 
     // Hash the password
-    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // Insert the new user using prepared statements
-    $stmt = $conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, 'customer')");
+    // Insert new user into the database
+    $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
     if (!$stmt) {
-        logError("Prepare Statement Failed: " . $conn->error);
-        die("Prepare failed: " . $conn->error); // Output error for debugging
+        set_error("Database error: " . $conn->error);
     }
     $stmt->bind_param("sss", $username, $email, $hashed_password);
 
     if ($stmt->execute()) {
-        // Registration successful, set session variables
-        $_SESSION['loggedin'] = true;
-        $_SESSION['user_id'] = $stmt->insert_id;
-        $_SESSION['username'] = $username;
-        $_SESSION['role'] = 'customer';
-        $stmt->close();
-        logError("Registration successful for user: $username");
-        header("Location: ../index.php?signup_success=1");
+        $_SESSION['signup_success'] = true;
+        $_SESSION['username'] = $username; // Store username for welcome message
+        error_log("User registered successfully: " . $username);
+        header("Location: ../index.php?welcome=1");
         exit();
     } else {
-        // Error during insertion
-        logError("Error during registration: " . $stmt->error);
-        die("Execute failed: " . $stmt->error); // Output error for debugging
+        set_error("Registration failed: " . $stmt->error);
     }
+
+    $stmt->close();
 } else {
-    // Invalid request method
+    // If someone tries to access this page directly, redirect them to the homepage
     header("Location: ../index.php");
     exit();
 }
+
+$conn->close();
 ?>

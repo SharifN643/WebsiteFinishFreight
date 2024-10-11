@@ -27,3 +27,9 @@
 [2024-10-10 06:31:19] Signup Error: Registration successful for user: cust1
 [2024-10-10 06:38:18] Signup Error: Received POST data: Username - cust1, Email - s@gmail.com
 [2024-10-10 06:38:18] Signup Error: Password must be at least 6 characters.
+[2024-10-11 05:15:37] Signup Error: Received POST data: Username - sdfdgf, Email - asdsfdg@gmail.com
+[2024-10-11 05:15:37] Signup Error: Registration successful for user: sdfdgf
+[2024-10-11 05:15:38] Signup Error: Received POST data: Username - sdfdgf, Email - asdsfdg@gmail.com
+[2024-10-11 05:15:38] Signup Error: Username or Email already taken: Username - sdfdgf, Email - asdsfdg@gmail.com
+[2024-10-11 05:15:38] Signup Error: Received POST data: Username - sdfdgf, Email - asdsfdg@gmail.com
+[2024-10-11 05:15:38] Signup Error: Username or Email already taken: Username - sdfdgf, Email - asdsfdg@gmail.com
