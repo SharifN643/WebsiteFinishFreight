@@ -113,7 +113,7 @@ if ($is_logged_in && $user_role === 'admin') {
 					<ul>
 						<li><a href="index.php">Home</a></li>
 						<li>
-							<a href="#" class="icon solid fa-angle-down">Services</a>
+							<a href="#" class="icon solid fa-angle-down">Servicese</a>
 							<ul>
 								<li><a href="freight/freight.php">Freight Transport</a></li>
 								<li><a href="warehousing.php">Warehousing</a></li>
