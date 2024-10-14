@@ -15,8 +15,15 @@ $username = $_SESSION['username'] ?? '';
 // Clear session variables after use
 unset($_SESSION['signup_error'], $_SESSION['signup_success']);
 
-// Check if user is logged in
+// Check if user is logged in and get their role
 $is_logged_in = isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;
+$user_role = $_SESSION['role'] ?? '';
+
+// If user is logged in and is an admin, redirect to admin dashboard
+if ($is_logged_in && $user_role === 'admin') {
+    header("Location: admin/dashboard.php");
+    exit();
+}
 ?><!DOCTYPE HTML>
 <html>
 	<head>

@@ -12,68 +12,25 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true || !isset($_
 // Include database connection
 require_once '../db_connect.php';
 
-// Function to get recent deliveries
-function getRecentDeliveries($conn, $limit = 10) {
-    $sql = "SELECT id, fullName, itemType, pickupDate, status FROM deliveries ORDER BY pickupDate DESC LIMIT ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $limit);
-    $stmt->execute();
-    $result = $stmt->get_result();
+// Function to get all deliveries
+function getAllDeliveries($conn) {
+    $sql = "SELECT id, fullName, itemType, pickupDate, status FROM deliveries ORDER BY pickupDate DESC";
+    $result = $conn->query($sql);
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-// Function to get delivery statistics
-function getDeliveryStats($conn) {
-    $stats = [];
-    
-    // Total deliveries
-    $sql = "SELECT COUNT(*) as total FROM deliveries";
-    $result = $conn->query($sql);
-    $stats['total_deliveries'] = $result->fetch_assoc()['total'];
-    
-    // Pending deliveries
-    $sql = "SELECT COUNT(*) as pending FROM deliveries WHERE status = 'Pending'";
-    $result = $conn->query($sql);
-    $stats['pending_deliveries'] = $result->fetch_assoc()['pending'];
-    
-    // In-transit deliveries
-    $sql = "SELECT COUNT(*) as in_transit FROM deliveries WHERE status = 'In Transit'";
-    $result = $conn->query($sql);
-    $stats['in_transit_deliveries'] = $result->fetch_assoc()['in_transit'];
-    
-    return $stats;
-}
-
-$recentDeliveries = getRecentDeliveries($conn);
-$deliveryStats = getDeliveryStats($conn);
+$allDeliveries = getAllDeliveries($conn);
 
 ?>
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<title>Admin Freight Management - TruckLogix</title>
+		<title>Manage Deliveries - TruckLogix Admin</title>
 		<meta charset="utf-8" />	
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="../assets/css/main.css" />
 		<script src="../assets/js/jquery.min.js"></script>
 		<style>
-			.admin-dashboard {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 20px;
-			}
-			.admin-card {
-				flex: 1 1 300px;
-				background-color: #f8f8f8;
-				border: 1px solid #ddd;
-				padding: 20px;
-				border-radius: 5px;
-			}
-			.stat-number {
-				font-size: 2em;
-				font-weight: bold;
-				color: #4a4a4a;
-			}
 			.admin-table {
 				width: 100%;
 				border-collapse: collapse;
@@ -93,12 +50,12 @@ $deliveryStats = getDeliveryStats($conn);
 
 			<!-- Header -->
 			<header id="header">
-				<h1><a href="admin_dashboard.php">TruckLogix Admin</a></h1>
+				<h1><a href="dashboard.php">TruckLogix Admin</a></h1>
 				<nav id="nav">
 					<ul>
-						<li><a href="admin_dashboard.php">Dashboard</a></li>
-						<li><a href="admin_freight.php">Freight Management</a></li>
-						<li><a href="admin_users.php">User Management</a></li>
+						<li><a href="dashboard.php">Dashboard</a></li>
+						<li><a href="manage_deliveries.php">Manage Deliveries</a></li>
+						<li><a href="manage_users.php">Manage Users</a></li>
 						<li><a href="../logout.php" class="button">Logout</a></li>
 					</ul>
 				</nav>
@@ -107,29 +64,12 @@ $deliveryStats = getDeliveryStats($conn);
 			<!-- Main -->
 			<section id="main" class="container">
 				<header>
-					<h2>Freight Management</h2>
-					<p>Manage deliveries and freight operations</p>
+					<h2>Manage Deliveries</h2>
+					<p>View and manage all deliveries</p>
 				</header>
 				
 				<div class="box">
-					<div class="admin-dashboard">
-						<div class="admin-card">
-							<h3>Delivery Statistics</h3>
-							<p>Total Deliveries: <span class="stat-number"><?php echo $deliveryStats['total_deliveries']; ?></span></p>
-							<p>Pending Deliveries: <span class="stat-number"><?php echo $deliveryStats['pending_deliveries']; ?></span></p>
-							<p>In-Transit Deliveries: <span class="stat-number"><?php echo $deliveryStats['in_transit_deliveries']; ?></span></p>
-						</div>
-						<div class="admin-card">
-							<h3>Quick Actions</h3>
-							<ul>
-								<li><a href="create_delivery.php" class="button">Create New Delivery</a></li>
-								<li><a href="manage_deliveries.php" class="button">Manage All Deliveries</a></li>
-								<li><a href="generate_report.php" class="button">Generate Report</a></li>
-							</ul>
-						</div>
-					</div>
-					
-					<h3>Recent Deliveries</h3>
+					<h3>All Deliveries</h3>
 					<table class="admin-table">
 						<thead>
 							<tr>
@@ -142,7 +82,7 @@ $deliveryStats = getDeliveryStats($conn);
 							</tr>
 						</thead>
 						<tbody>
-							<?php foreach ($recentDeliveries as $delivery): ?>
+							<?php foreach ($allDeliveries as $delivery): ?>
 							<tr>
 								<td><?php echo $delivery['id']; ?></td>
 								<td><?php echo htmlspecialchars($delivery['fullName']); ?></td>
