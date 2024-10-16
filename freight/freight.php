@@ -5,25 +5,13 @@ ini_set('display_errors', 1);
 
 // Check if user is logged in
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header("Location: ../login.php");
+    header("Location: ../login.php?message=" . urlencode("Please log in to access freight services"));
     exit();
 }
 
 // Include database connection
 require_once '../db_connect.php';
 
-// Function to get recent deliveries (for admin view)
-function getRecentDeliveries($conn, $limit = 5) {
-    $sql = "SELECT id, fullName, itemType, pickupDate, status FROM deliveries ORDER BY pickupDate DESC LIMIT ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $limit);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    return $result->fetch_all(MYSQLI_ASSOC);
-}
-
-// Get recent deliveries if user is admin
-$recentDeliveries = $isAdmin ? getRecentDeliveries($conn) : [];
 ?>
 <!DOCTYPE HTML>
 <html>

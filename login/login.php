@@ -48,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($_SESSION['role'] === 'admin') {
                 header("Location: ../admin/dashboard.php");
             } else {
-                header("Location: ../freight/freight.php");
+                header("Location: ../index.php");
             }
             exit();
         } else {

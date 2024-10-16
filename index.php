@@ -19,12 +19,18 @@ unset($_SESSION['signup_error'], $_SESSION['signup_success']);
 $is_logged_in = isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;
 $user_role = $_SESSION['role'] ?? '';
 
-// If user is logged in and is an admin, redirect to admin dashboard
-if ($is_logged_in && $user_role === 'admin') {
-    header("Location: admin/dashboard.php");
-    exit();
+// Redirect based on role
+if ($is_logged_in) {
+    if ($user_role === 'admin') {
+        header("Location: admin/dashboard.php");
+        exit();
+    } else {
+        // User is already logged in, no need to show login form
+        // You can add any customer-specific content here
+    }
 }
-?><!DOCTYPE HTML>
+?>
+<!DOCTYPE HTML>
 <html>
 	<head>
 		<title>TruckLogix</title>
@@ -112,24 +118,24 @@ if ($is_logged_in && $user_role === 'admin') {
 				<nav id="nav" style="margin-left: auto;">
 					<ul>
 						<li><a href="index.php">Home</a></li>
-						<li>
-							<a href="#" class="icon solid fa-angle-down">Servicese</a>
-							<ul>
-								<li><a href="freight/freight.php">Freight Transport</a></li>
-								<li><a href="warehousing.php">Warehousing</a></li>
-								<li><a href="logistics.php">Logistics Solutions</a></li>
-								<li>
-									<a href="#">Specialized Services</a>
-									<ul>
-										<li><a href="#">Temperature-Controlled</a></li>
-										<li><a href="#">Hazardous Materials</a></li>
-										<li><a href="#">Oversized Loads</a></li>
-										<li><a href="#">Express Delivery</a></li>
-									</ul>
-								</li>
-							</ul>
-						</li>
 						<?php if ($is_logged_in): ?>
+							<li>
+								<a href="#" class="icon solid fa-angle-down">Services</a>
+								<ul>
+									<li><a href="freight/freight.php">Freight Transport</a></li>
+									<li><a href="warehouse/warehousing.php">Warehousing</a></li>
+									<li><a href="logistics.php">Logistics Solutions</a></li>
+									<li>
+										<a href="#">Specialized Services</a>
+										<ul>
+											<li><a href="#">Temperature-Controlled</a></li>
+											<li><a href="#">Hazardous Materials</a></li>
+											<li><a href="#">Oversized Loads</a></li>
+											<li><a href="#">Express Delivery</a></li>
+										</ul>
+									</li>
+								</ul>
+							</li>
 							<li><a href="#" class="button">Welcome, <?php echo htmlspecialchars($username); ?></a></li>
 							<li><a href="logout.php" class="button alt">Logout</a></li>
 						<?php else: ?>
@@ -202,72 +208,86 @@ if ($is_logged_in && $user_role === 'admin') {
 
 			<!-- Main Content -->
 			<section id="main" class="container">
-				<section class="box special">
-					<header class="major">
-						<h2>Revolutionizing Trucking and Logistics
-						<br />
-						with Cutting-Edge Technology</h2>
-						<p>Experience seamless shipping and real-time tracking with our state-of-the-art logistics platform.<br />
-						Optimizing routes, reducing costs, and ensuring on-time deliveries.</p>
-					</header>
-					<span class="image featured">
-						<img src="images\Untitled design (4).png" alt="Truck Fleet" style="object-fit: cover; width: 100%; max-height: 400px;" />
-					</span>
-				</section>
+				<?php if ($is_logged_in): ?>
+					<section class="box special">
+						<header class="major">
+							<h2>Welcome, <?php echo htmlspecialchars($username); ?>!</h2>
+							<p>Choose a service to get started:</p>
+						</header>
+						<ul class="actions special">
+							<li><a href="freight/freight.php" class="button primary">Freight Transport</a></li>
+							<li><a href="warehouse/warehousing.php" class="button">Warehousing</a></li>
+							<li><a href="logistics.php" class="button">Logistics Solutions</a></li>
+						</ul>
+					</section>
+				<?php else: ?>
+					<section class="box special">
+						<header class="major">
+							<h2>Revolutionizing Trucking and Logistics
+							<br />
+							with Cutting-Edge Technology</h2>
+							<p>Experience seamless shipping and real-time tracking with our state-of-the-art logistics platform.<br />
+							Optimizing routes, reducing costs, and ensuring on-time deliveries.</p>
+						</header>
+						<span class="image featured">
+							<img src="images\Untitled design (4).png" alt="Truck Fleet" style="object-fit: cover; width: 100%; max-height: 400px;" />
+						</span>
+					</section>
 
-				<section class="box special features">
-					<div class="features-row">
-						<section>
-							<span class="icon solid major fa-truck accent2"></span>
-							<h3>Nationwide Coverage</h3>
-							<p>Our extensive network of trucks and drivers ensures reliable transportation services across the country, meeting your shipping needs with precision and care.</p>
-						</section>
-						<section>
-							<span class="icon solid major fa-chart-line accent3"></span>
-							<h3>Real-Time Tracking</h3>
-							<p>Stay informed about your shipments with our advanced tracking system, providing real-time updates and estimated arrival times for complete peace of mind.</p>
-						</section>
-					</div>
-					<div class="features-row">
-						<section>
-							<span class="icon solid major fa-warehouse accent4"></span>
-							<h3>Warehousing Solutions</h3>
-							<p>Our state-of-the-art warehouses offer secure storage and efficient inventory management, streamlining your supply chain and reducing operational costs.</p>
-						</section>
-						<section>
-							<span class="icon solid major fa-shield-alt accent5"></span>
-							<h3>Secure Transport</h3>
-							<p>We prioritize the safety of your cargo with our rigorous security measures, experienced drivers, and well-maintained fleet, ensuring your goods arrive intact.</p>
-						</section>
-					</div>
-				</section>
+					<section class="box special features">
+						<div class="features-row">
+							<section>
+								<span class="icon solid major fa-truck accent2"></span>
+								<h3>Nationwide Coverage</h3>
+								<p>Our extensive network of trucks and drivers ensures reliable transportation services across the country, meeting your shipping needs with precision and care.</p>
+							</section>
+							<section>
+								<span class="icon solid major fa-chart-line accent3"></span>
+								<h3>Real-Time Tracking</h3>
+								<p>Stay informed about your shipments with our advanced tracking system, providing real-time updates and estimated arrival times for complete peace of mind.</p>
+							</section>
+						</div>
+						<div class="features-row">
+							<section>
+								<span class="icon solid major fa-warehouse accent4"></span>
+								<h3>Warehousing Solutions</h3>
+								<p>Our state-of-the-art warehouses offer secure storage and efficient inventory management, streamlining your supply chain and reducing operational costs.</p>
+							</section>
+							<section>
+								<span class="icon solid major fa-shield-alt accent5"></span>
+								<h3>Secure Transport</h3>
+								<p>We prioritize the safety of your cargo with our rigorous security measures, experienced drivers, and well-maintained fleet, ensuring your goods arrive intact.</p>
+							</section>
+						</div>
+					</section>
 
-				<div class="row">
-					<div class="col-6 col-12-narrower">
-						<section class="box special">
-							<span class="image featured">
-								<img src="images\MultipleTransport.png" alt="Intermodal Transport" style="object-fit: cover; width: 100%; height: 200px;" />
-							</span>
-							<h3>Intermodal Transport Solutions</h3>
-							<p>Optimize your supply chain with our efficient intermodal transport services. We combine road, rail, and sea shipping to provide cost-effective and environmentally friendly logistics solutions for your business.</p>
-							<ul class="actions special">
-								<li><a href="#" class="button alt">Learn More</a></li>
-							</ul>
-						</section>
+					<div class="row">
+						<div class="col-6 col-12-narrower">
+							<section class="box special">
+								<span class="image featured">
+									<img src="images\MultipleTransport.png" alt="Intermodal Transport" style="object-fit: cover; width: 100%; height: 200px;" />
+								</span>
+								<h3>Intermodal Transport Solutions</h3>
+								<p>Optimize your supply chain with our efficient intermodal transport services. We combine road, rail, and sea shipping to provide cost-effective and environmentally friendly logistics solutions for your business.</p>
+								<ul class="actions special">
+									<li><a href="#" class="button alt">Learn More</a></li>
+								</ul>
+							</section>
+						</div>
+						<div class="col-6 col-12-narrower">
+							<section class="box special">
+								<span class="image featured">
+									<img src="images\Untitled design (9).png" alt="Custom Logistics" style="object-fit: cover; width: 100%; height: 200px;" />
+								</span>
+								<h3>Custom Logistics Solutions</h3>
+								<p>Our team of experts designs tailored logistics solutions to meet your unique business needs. From specialized handling to complex supply chain management, we've got you covered.</p>
+								<ul class="actions special">
+									<li><a href="#" class="button alt">Learn More</a></li>
+								</ul>
+							</section>
+						</div>
 					</div>
-					<div class="col-6 col-12-narrower">
-						<section class="box special">
-							<span class="image featured">
-								<img src="images\Untitled design (9).png" alt="Custom Logistics" style="object-fit: cover; width: 100%; height: 200px;" />
-							</span>
-							<h3>Custom Logistics Solutions</h3>
-							<p>Our team of experts designs tailored logistics solutions to meet your unique business needs. From specialized handling to complex supply chain management, we've got you covered.</p>
-							<ul class="actions special">
-								<li><a href="#" class="button alt">Learn More</a></li>
-							</ul>
-						</section>
-					</div>
-				</div>
+				<?php endif; ?>
 			</section>
 
 			<!-- CTA Section -->

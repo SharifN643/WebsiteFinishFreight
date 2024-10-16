@@ -8,8 +8,9 @@ ini_set('display_errors', 1);
 		<title>Warehousing Services - TruckLogix</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<script src="assets/js/jquery.min.js"></script>
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<link rel="stylesheet" href="../assets/css/fontawesome-all.min.css" />
+		<script src="../assets/js/jquery.min.js"></script>
 	</head>
 	<body class="is-preload">
 		<div id="page-wrapper">
@@ -28,7 +29,7 @@ ini_set('display_errors', 1);
                 <a href="#" class="icon solid fa-angle-down">Services</a>
                 <ul>
                     <li><a href="freight.php">Freight Transport</a></li>
-                    <li><a href="warehousing.php">Warehousing</a></li>
+                    <li><a href="warehouse/warehousing.php">Warehousing</a></li>
                     <li><a href="logistics.php">Logistics Solutions</a></li>
                     <li>
                         <a href="#">Specialized Services</a>
@@ -79,6 +80,14 @@ ini_set('display_errors', 1);
 					</div>
 				</section>
 
+				<!-- Functional buttons for Storage Forms -->
+				<section class="box">
+					<ul class="actions special">
+						<li><a href="normal_storage_form.php" class="button primary large">Normal Storage Form</a></li>
+						<li><a href="temperature_controlled_storage_form.php" class="button primary large">Temperature-Controlled Storage Form</a></li>
+					</ul>
+				</section>
+
 			<!-- Footer -->
 				<footer id="footer">
 					<ul class="icons">
@@ -95,13 +104,13 @@ ini_set('display_errors', 1);
 		</div>
 
 		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/jquery.dropotron.min.js"></script>
-			<script src="assets/js/jquery.scrollex.min.js"></script>
-			<script src="assets/js/browser.min.js"></script>
-			<script src="assets/js/breakpoints.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.dropotron.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/browser.min.js"></script>
+			<script src="../assets/js/breakpoints.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
 
 		<script>
 			$(document).ready(function() {
