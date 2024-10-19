@@ -2,19 +2,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Database connection details
-$host = 'localhost';
-$dbname = 'your_database_name';
-$username = 'your_username';
-$password = 'your_password';
-
-// Create connection
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
-}
+require_once 'db_connect.php';
 
 // Check if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -45,43 +33,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         item_description, quantity, weight, dimensions, temperature_range, special_handling,
         storage_duration, additional_services, other_services, delivery_method, delivery_date,
         pickup_date, additional_notes
-    ) VALUES (
-        :customerName, :companyName, :email, :phoneNumber, :billingAddress, :deliveryAddress,
-        :itemDescription, :quantity, :weight, :dimensions, :temperatureRange, :specialHandling,
-        :storageDuration, :additionalServices, :otherServices, :deliveryMethod, :deliveryDate,
-        :pickupDate, :additionalNotes
-    )";
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     try {
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            ':customerName' => $customerName,
-            ':companyName' => $companyName,
-            ':email' => $email,
-            ':phoneNumber' => $phoneNumber,
-            ':billingAddress' => $billingAddress,
-            ':deliveryAddress' => $deliveryAddress,
-            ':itemDescription' => $itemDescription,
-            ':quantity' => $quantity,
-            ':weight' => $weight,
-            ':dimensions' => $dimensions,
-            ':temperatureRange' => $temperatureRange,
-            ':specialHandling' => $specialHandling,
-            ':storageDuration' => $storageDuration,
-            ':additionalServices' => $additionalServices,
-            ':otherServices' => $otherServices,
-            ':deliveryMethod' => $deliveryMethod,
-            ':deliveryDate' => $deliveryDate,
-            ':pickupDate' => $pickupDate,
-            ':additionalNotes' => $additionalNotes
-        ]);
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sssssssidssssssssss", 
+            $customerName, $companyName, $email, $phoneNumber, $billingAddress, $deliveryAddress,
+            $itemDescription, $quantity, $weight, $dimensions, $temperatureRange, $specialHandling,
+            $storageDuration, $additionalServices, $otherServices, $deliveryMethod, $deliveryDate,
+            $pickupDate, $additionalNotes
+        );
+        $stmt->execute();
+
+        echo "Data inserted successfully";
 
         // Redirect to a success page
-        header("Location: submission_success.php");
-        exit();
-    } catch(PDOException $e) {
-        die("Error inserting data: " . $e->getMessage());
+        // header("Location: submission_success.php");
+        // exit();
+    } catch(Exception $e) {
+        echo "Error inserting data: " . $e->getMessage();
     }
 }
-?>
 
+$conn->close();
+?>

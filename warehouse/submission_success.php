@@ -15,7 +15,7 @@
 					<h2>Submission Successful</h2>
 				</header>
 				<div class="box">
-					<p>Your temperature-controlled storage request has been successfully submitted. We will process your request and contact you shortly.</p>
+					<p>Your storage request has been successfully submitted. We will process your request and contact you shortly.</p>
 					<a href="warehousing.php" class="button">Return to Warehousing Services</a>
 				</div>
 			</section>
