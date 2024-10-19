@@ -4,15 +4,16 @@ ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 ini_set('error_log', 'error.log');
 
-echo "Script started<br>";
+require_once '../db_connect.php';
 
-require_once 'db_connect.php';
-
-echo "Database connected<br>";
+// Start the session
+session_start();
 
 // Check if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    echo "POST data received<br>";
+    // Assuming you have a user authentication system and the user_id is stored in the session
+    $userId = $_SESSION['user_id']; // Make sure to start the session at the beginning of your script
+
     // Collect form data
     $customerName = $_POST['customerName'];
     $companyName = $_POST['companyName'];
@@ -33,23 +34,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
         $conn->begin_transaction();
 
-        // Insert main request
+        // Prepare SQL statement for main request (updated to include user_id)
         $sql = "INSERT INTO normal_storage_requests (
-            customer_name, company_name, email, phone_number, billing_address, delivery_address,
+            user_id, customer_name, company_name, email, phone_number, billing_address, delivery_address,
             item_description, quantity, weight, dimensions, storage_duration,
             delivery_method, delivery_date, pickup_date, additional_notes
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssssidssssss", 
-            $customerName, $companyName, $email, $phoneNumber, $billingAddress, $deliveryAddress,
+        $stmt->bind_param("isssssssidssssss", 
+            $userId, $customerName, $companyName, $email, $phoneNumber, $billingAddress, $deliveryAddress,
             $itemDescription, $quantity, $weight, $dimensions, $storageDuration,
             $deliveryMethod, $deliveryDate, $pickupDate, $additionalNotes
         );
         $stmt->execute();
 
         $requestId = $conn->insert_id;
-        echo "Main request inserted successfully. ID: $requestId<br>";
 
         // Insert additional services
         if (isset($_POST['additionalServices']) && is_array($_POST['additionalServices'])) {
@@ -58,7 +58,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             foreach ($_POST['additionalServices'] as $service) {
                 $additionalServicesStmt->bind_param("is", $requestId, $service);
                 $additionalServicesStmt->execute();
-                echo "Additional service inserted: $service<br>";
             }
         }
 
@@ -68,24 +67,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $otherServicesStmt = $conn->prepare($otherServicesSql);
             $otherServicesStmt->bind_param("is", $requestId, $_POST['otherServices']);
             $otherServicesStmt->execute();
-            echo "Other services inserted<br>";
         }
 
         $conn->commit();
-        echo "Transaction committed successfully<br>";
 
-        // Redirect to success page (uncomment when ready)
-        // header("Location: submission_success.php");
-        // exit();
+        // Redirect to success page
+        header("Location: submission_success.php");
+        exit();
     } catch(Exception $e) {
         $conn->rollback();
-        echo "Error inserting data: " . $e->getMessage() . "<br>";
+        // Log the error
+        error_log("Error inserting data: " . $e->getMessage());
+        // Redirect to an error page
+        header("Location: submission_error.php");
+        exit();
     }
 } else {
-    echo "No POST data received. This page should be accessed from a form submission.<br>";
+    // Redirect to the form page if accessed directly
+    header("Location: normal_storage_form.php");
+    exit();
 }
-
-echo "Script ended<br>";
 
 $conn->close();
 ?>

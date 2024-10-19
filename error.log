@@ -84,3 +84,21 @@
 [2024-10-16 05:04:14] Login Error: Successful login for user: customer12345
 [2024-10-16 05:04:26] Login Error: Successful login for user: customer12345
 [2024-10-16 05:04:31] Login Error: Successful login for user: customer123
+[2024-10-18 10:41:27] Login Error: Failed login attempt for non-existent user: customer123
+[2024-10-18 10:41:30] Login Error: Failed login attempt for non-existent user: customer123
+[2024-10-18 10:41:33] Login Error: Failed login attempt for non-existent user: customer12345
+[2024-10-18 10:41:43] Login Error: Successful login for user: customer12345
+[2024-10-18 10:42:09] Login Error: Successful login for user: customer123
+[2024-10-18 10:42:38] Login Error: Successful login for user: customer123
+[2024-10-18 10:43:04] Login Error: Successful login for user: customer12345
+[2024-10-18 11:12:30] Login Error: Successful login for user: customer12345
+[2024-10-18 11:13:37] Login Error: Successful login for user: customer123
+[2024-10-18 11:13:47] Login Error: Successful login for user: customer12345
+[2024-10-18 11:15:42] Login Error: Successful login for user: customer12345
+[2024-10-19 05:40:01] Login Error: Failed login attempt for non-existent user: customer12345
+[2024-10-19 05:40:06] Login Error: Successful login for user: customer123
+[2024-10-19 05:41:03] Login Error: Successful login for user: customer12345
+[2024-10-19 05:41:09] Login Error: Successful login for user: customer123
+[2024-10-19 05:41:15] Login Error: Successful login for user: customer12345
+[2024-10-19 06:13:24] Login Error: Successful login for user: customer12345
+[2024-10-19 06:14:10] Login Error: Successful login for user: customer2

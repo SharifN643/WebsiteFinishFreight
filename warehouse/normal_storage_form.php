@@ -45,7 +45,7 @@ ini_set('display_errors', 1);
 					<p>Request storage for your goods</p>
 				</header>
 				<div class="box">
-					<form method="post" action="../warehouse/process_normal_storage.php">
+					<form method="post" action="process_normal_storage.php">
 							<h3>Basic Information</h3>
 							<div class="row gtr-50 gtr-uniform">
 								<div class="col-6 col-12-mobilep">

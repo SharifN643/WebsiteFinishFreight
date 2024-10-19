@@ -1,0 +1,5 @@
+[19-Oct-2024 05:51:33 Europe/Berlin] PHP Warning:  require_once(db_connect.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\mywebsite\warehouse\process_normal_storage.php on line 9
+[19-Oct-2024 05:51:33 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'db_connect.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\mywebsite\warehouse\process_normal_storage.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\mywebsite\warehouse\process_normal_storage.php on line 9
