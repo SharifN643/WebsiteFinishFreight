@@ -3,8 +3,6 @@ session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-echo "Dashboard is loading..."; // This line will help you determine if PHP is executing
-
 // Check if user is logged in and has admin role
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../login.php");
@@ -34,60 +32,71 @@ function getRecentFreightRequests($conn, $limit = 10) {
 
 // Function to get freight request statistics
 function getFreightRequestStats($conn) {
+    $stats = [
+        'pending_requests' => 0,
+        'in_transit_requests' => 0,
+        'completed_requests' => 0
+    ];
+    
+    $sql = "SELECT 
+        SUM(CASE WHEN delivery_date IS NULL THEN 1 ELSE 0 END) as pending,
+        SUM(CASE WHEN delivery_date IS NOT NULL AND delivery_date >= CURDATE() THEN 1 ELSE 0 END) as in_transit,
+        SUM(CASE WHEN delivery_date IS NOT NULL AND delivery_date < CURDATE() THEN 1 ELSE 0 END) as completed
+        FROM freight_requests";
+    
+    $result = $conn->query($sql);
+    if ($result) {
+        $row = $result->fetch_assoc();
+        $stats['pending_requests'] = (int)$row['pending'];
+        $stats['in_transit_requests'] = (int)$row['in_transit'];
+        $stats['completed_requests'] = (int)$row['completed'];
+    } else {
+        echo "Error executing query: " . $conn->error;
+    }
+    
+    return $stats;
+}
+
+// Function to get warehouse request statistics
+function getWarehouseRequestStats($conn) {
     $stats = [];
     
-    // Total requests
-    $sql = "SELECT COUNT(*) as total FROM freight_requests";
+    // Normal storage requests
+    $sql = "SELECT COUNT(*) as total, 
+            SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) as pending,
+            SUM(CASE WHEN status = 'Approved' THEN 1 ELSE 0 END) as approved,
+            SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) as in_progress,
+            SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed
+            FROM normal_storage_requests";
     $result = $conn->query($sql);
-    $stats['total_requests'] = $result->fetch_assoc()['total'];
+    $stats['normal'] = $result->fetch_assoc();
     
-    // Pending requests
-    $sql = "SELECT COUNT(*) as pending FROM freight_requests WHERE delivery_date IS NULL";
+    // Temperature-controlled storage requests
+    $sql = "SELECT COUNT(*) as total, 
+            SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) as pending,
+            SUM(CASE WHEN status = 'Approved' THEN 1 ELSE 0 END) as approved,
+            SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) as in_progress,
+            SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed
+            FROM temperature_controlled_storage_requests";
     $result = $conn->query($sql);
-    $stats['pending_requests'] = $result->fetch_assoc()['pending'];
-    
-    // In-transit requests
-    $sql = "SELECT COUNT(*) as in_transit FROM freight_requests WHERE delivery_date >= CURDATE()";
-    $result = $conn->query($sql);
-    $stats['in_transit_requests'] = $result->fetch_assoc()['in_transit'];
-    
-    // Completed requests
-    $sql = "SELECT COUNT(*) as completed FROM freight_requests WHERE delivery_date < CURDATE()";
-    $result = $conn->query($sql);
-    $stats['completed_requests'] = $result->fetch_assoc()['completed'];
+    $stats['temp'] = $result->fetch_assoc();
     
     return $stats;
 }
 
 $recentRequests = getRecentFreightRequests($conn);
-$requestStats = getFreightRequestStats($conn);
-
-// Add debugging information
-echo "<pre>";
-print_r($recentRequests);
-print_r($requestStats);
-echo "</pre>";
+$freightStats = getFreightRequestStats($conn);
+$warehouseStats = getWarehouseRequestStats($conn);
 
 ?>
 <!DOCTYPE HTML>
 <html>
 	<head>
 		<title>Admin Dashboard - TruckLogix</title>
-		<!-- Add console log to check if JavaScript is running -->
-		<script>console.log("JavaScript is running");</script>
-		<!-- Check if CSS is loading properly -->
 		<link rel="stylesheet" href="../assets/css/main.css">
-		<style>
-			/* Add a temporary style to make sure CSS is applied */
-			body { background-color: #f0f0f0; }
-		</style>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	</head>
 	<body class="is-preload">
-		<!-- Add more debug information -->
-		<div style="background-color: yellow; padding: 10px;">
-			Debug: Body of the dashboard is starting to render
-		</div>
-
 		<div id="page-wrapper">
 
 			<!-- Header -->
@@ -96,29 +105,49 @@ echo "</pre>";
 				<nav id="nav">
 					<ul>
 						<li><a href="dashboard.php">Dashboard</a></li>
-						<li><a href="manage_request.php">Manage Requests</a></li>
+						<li><a href="manage_request.php">Manage Freight</a></li>
+						<li><a href="admin_warehouse.php">Manage Warehouse</a></li>
 						<li><a href="manage_users.php">Manage Users</a></li>
 						<li><a href="../logout.php" class="button">Logout</a></li>
 					</ul>
 				</nav>
 			</header>
 
-			<!-- Main -->
+			<!-- Main content starts here -->
 			<section id="main" class="container">
 				<header>
 					<h2>Admin Dashboard</h2>
 					<p>Manage freight requests and operations</p>
 				</header>
-				
+
+				<div class="row">
+					<div class="col-4 col-12-narrower">
+						<section class="box">
+							<h3>Freight Request Statistics</h3>
+							<canvas id="freightChart"></canvas>
+						</section>
+					</div>
+					<div class="col-4 col-12-narrower">
+						<section class="box">
+							<h3>Normal Storage Statistics</h3>
+							<canvas id="normalStorageChart"></canvas>
+						</section>
+					</div>
+					<div class="col-4 col-12-narrower">
+						<section class="box">
+							<h3>Temperature-Controlled Storage Statistics</h3>
+							<canvas id="tempStorageChart"></canvas>
+						</section>
+					</div>
+				</div>
+
 				<div class="row">
 					<div class="col-12">
 						<section class="box">
-							<h3>Freight Request Statistics</h3>
-							<ul>
-								<li>Total Requests: <?php echo $requestStats['total_requests']; ?></li>
-								<li>Pending Requests: <?php echo $requestStats['pending_requests']; ?></li>
-								<li>In-Transit Requests: <?php echo $requestStats['in_transit_requests']; ?></li>
-								<li>Completed Requests: <?php echo $requestStats['completed_requests']; ?></li>
+							<h3>Freight Management</h3>
+							<p>Manage freight requests and operations</p>
+							<ul class="actions">
+								<li><a href="manage_request.php" class="button">Manage Freight Requests</a></li>
 							</ul>
 						</section>
 					</div>
@@ -127,39 +156,142 @@ echo "</pre>";
 				<div class="row">
 					<div class="col-12">
 						<section class="box">
-							<h3>Recent Freight Requests</h3>
-							<table>
-								<thead>
-									<tr>
-										<th>ID</th>
-										<th>Customer</th>
-										<th>Pickup Date</th>
-										<th>Created At</th>
-										<th>Status</th>
-									</tr>
-								</thead>
-								<tbody>
-									<?php foreach ($recentRequests as $request): ?>
-									<tr>
-										<td><?php echo $request['request_id']; ?></td>
-										<td><?php echo htmlspecialchars($request['username']); ?></td>
-										<td><?php echo $request['pickup_date']; ?></td>
-										<td><?php echo $request['created_at']; ?></td>
-										<td><?php echo htmlspecialchars($request['status']); ?></td>
-									</tr>
-									<?php endforeach; ?>
-								</tbody>
-							</table>
+							<h3>Warehouse Management</h3>
+							<p>Manage warehouse storage requests and operations</p>
+							<ul class="actions">
+								<li><a href="admin_warehouse.php" class="button">Manage Warehouse</a></li>
+							</ul>
 						</section>
 					</div>
 				</div>
-			</section>
 
-			<!-- Footer -->
-			<footer id="footer">
-				<p>&copy; 2023 TruckLogix. All rights reserved.</p>
-			</footer>
+				<!-- Footer -->
+				<footer id="footer">
+					<p>&copy; 2023 TruckLogix. All rights reserved.</p>
+				</footer>
 
+			</div>
+
+			<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.dropotron.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/browser.min.js"></script>
+			<script src="../assets/js/breakpoints.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+			<!-- Add a script to check if all scripts are loaded -->
+			<script>
+				console.log("All scripts have been included");
+				$(document).ready(function() {
+					console.log("Document is ready");
+				});
+
+				// Freight Chart
+				var freightCtx = document.getElementById('freightChart').getContext('2d');
+				var freightData = {
+					pending: <?php echo json_encode($freightStats['pending_requests']); ?>,
+					inTransit: <?php echo json_encode($freightStats['in_transit_requests']); ?>,
+					completed: <?php echo json_encode($freightStats['completed_requests']); ?>
+				};
+				console.log('Freight Data:', freightData);
+
+				if (freightData.pending !== null && freightData.inTransit !== null && freightData.completed !== null) {
+					var freightChart = new Chart(freightCtx, {
+						type: 'pie',
+						data: {
+							labels: ['Pending', 'In Transit', 'Completed'],
+							datasets: [{
+								data: [freightData.pending, freightData.inTransit, freightData.completed],
+								backgroundColor: [
+									'rgba(255, 206, 86, 0.8)',
+									'rgba(54, 162, 235, 0.8)',
+									'rgba(75, 192, 192, 0.8)'
+								]
+							}]
+						},
+						options: {
+							responsive: true,
+							plugins: {
+								title: {
+									display: true,
+									text: 'Freight Requests'
+								},
+								legend: {
+									position: 'bottom'
+								}
+							}
+						}
+					});
+				} else {
+					console.error('Invalid freight data');
+					document.getElementById('freightChart').insertAdjacentHTML('afterend', '<p>Error: Unable to load freight data</p>');
+				}
+
+				// Normal Storage Chart
+				var normalStorageCtx = document.getElementById('normalStorageChart').getContext('2d');
+				var normalStorageChart = new Chart(normalStorageCtx, {
+					type: 'pie',
+					data: {
+						labels: ['Pending', 'Approved', 'In Progress', 'Completed'],
+						datasets: [{
+							data: [
+								<?php echo $warehouseStats['normal']['pending']; ?>,
+								<?php echo $warehouseStats['normal']['approved']; ?>,
+								<?php echo $warehouseStats['normal']['in_progress']; ?>,
+								<?php echo $warehouseStats['normal']['completed']; ?>
+							],
+							backgroundColor: [
+								'rgba(255, 99, 132, 0.8)',
+								'rgba(54, 162, 235, 0.8)',
+								'rgba(255, 206, 86, 0.8)',
+								'rgba(75, 192, 192, 0.8)'
+							]
+						}]
+					},
+					options: {
+						responsive: true,
+						title: {
+							display: true,
+							text: 'Normal Storage Requests'
+						}
+					}
+				});
+
+				// Temperature-Controlled Storage Chart
+				var tempStorageCtx = document.getElementById('tempStorageChart').getContext('2d');
+				var tempStorageChart = new Chart(tempStorageCtx, {
+					type: 'pie',
+					data: {
+						labels: ['Pending', 'Approved', 'In Progress', 'Completed'],
+						datasets: [{
+							data: [
+								<?php echo $warehouseStats['temp']['pending']; ?>,
+								<?php echo $warehouseStats['temp']['approved']; ?>,
+								<?php echo $warehouseStats['temp']['in_progress']; ?>,
+								<?php echo $warehouseStats['temp']['completed']; ?>
+							],
+							backgroundColor: [
+								'rgba(255, 99, 132, 0.8)',
+								'rgba(54, 162, 235, 0.8)',
+								'rgba(255, 206, 86, 0.8)',
+								'rgba(75, 192, 192, 0.8)'
+							]
+						}]
+					},
+					options: {
+						responsive: true,
+						title: {
+							display: true,
+							text: 'Temperature-Controlled Storage Requests'
+						}
+					}
+				});
+
+				// Debug output for charts
+				console.log('Freight Stats:', <?php echo json_encode($freightStats); ?>);
+				console.log('Warehouse Stats:', <?php echo json_encode($warehouseStats); ?>);
+			</script>
 		</div>
 
 		<!-- Scripts -->
@@ -176,6 +308,111 @@ echo "</pre>";
 			$(document).ready(function() {
 				console.log("Document is ready");
 			});
+
+			// Freight Chart
+			var freightCtx = document.getElementById('freightChart').getContext('2d');
+			var freightData = {
+				pending: <?php echo json_encode($freightStats['pending_requests']); ?>,
+				inTransit: <?php echo json_encode($freightStats['in_transit_requests']); ?>,
+				completed: <?php echo json_encode($freightStats['completed_requests']); ?>
+			};
+			console.log('Freight Data:', freightData);
+
+			if (freightData.pending !== null && freightData.inTransit !== null && freightData.completed !== null) {
+				var freightChart = new Chart(freightCtx, {
+					type: 'pie',
+					data: {
+						labels: ['Pending', 'In Transit', 'Completed'],
+						datasets: [{
+							data: [freightData.pending, freightData.inTransit, freightData.completed],
+							backgroundColor: [
+								'rgba(255, 206, 86, 0.8)',
+								'rgba(54, 162, 235, 0.8)',
+								'rgba(75, 192, 192, 0.8)'
+							]
+						}]
+					},
+					options: {
+						responsive: true,
+						plugins: {
+							title: {
+								display: true,
+								text: 'Freight Requests'
+							},
+							legend: {
+								position: 'bottom'
+							}
+						}
+					}
+				});
+			} else {
+				console.error('Invalid freight data');
+				document.getElementById('freightChart').insertAdjacentHTML('afterend', '<p>Error: Unable to load freight data</p>');
+			}
+
+			// Normal Storage Chart
+			var normalStorageCtx = document.getElementById('normalStorageChart').getContext('2d');
+			var normalStorageChart = new Chart(normalStorageCtx, {
+				type: 'pie',
+				data: {
+					labels: ['Pending', 'Approved', 'In Progress', 'Completed'],
+					datasets: [{
+						data: [
+							<?php echo $warehouseStats['normal']['pending']; ?>,
+							<?php echo $warehouseStats['normal']['approved']; ?>,
+							<?php echo $warehouseStats['normal']['in_progress']; ?>,
+							<?php echo $warehouseStats['normal']['completed']; ?>
+						],
+						backgroundColor: [
+							'rgba(255, 99, 132, 0.8)',
+							'rgba(54, 162, 235, 0.8)',
+							'rgba(255, 206, 86, 0.8)',
+							'rgba(75, 192, 192, 0.8)'
+						]
+					}]
+				},
+				options: {
+					responsive: true,
+					title: {
+						display: true,
+						text: 'Normal Storage Requests'
+					}
+				}
+			});
+
+			// Temperature-Controlled Storage Chart
+			var tempStorageCtx = document.getElementById('tempStorageChart').getContext('2d');
+			var tempStorageChart = new Chart(tempStorageCtx, {
+				type: 'pie',
+				data: {
+					labels: ['Pending', 'Approved', 'In Progress', 'Completed'],
+					datasets: [{
+						data: [
+							<?php echo $warehouseStats['temp']['pending']; ?>,
+							<?php echo $warehouseStats['temp']['approved']; ?>,
+							<?php echo $warehouseStats['temp']['in_progress']; ?>,
+							<?php echo $warehouseStats['temp']['completed']; ?>
+						],
+						backgroundColor: [
+							'rgba(255, 99, 132, 0.8)',
+							'rgba(54, 162, 235, 0.8)',
+							'rgba(255, 206, 86, 0.8)',
+							'rgba(75, 192, 192, 0.8)'
+						]
+					}]
+				},
+				options: {
+					responsive: true,
+					title: {
+						display: true,
+						text: 'Temperature-Controlled Storage Requests'
+					}
+				}
+			});
+
+			// Debug output for charts
+			console.log('Freight Stats:', <?php echo json_encode($freightStats); ?>);
+			console.log('Warehouse Stats:', <?php echo json_encode($warehouseStats); ?>);
 		</script>
 	</body>
 </html>

@@ -201,8 +201,8 @@ if ($is_logged_in) {
 				<h2>Pen Express Your Dynamic Logistics Partner</h2>
 				<p>Efficient Solutions for All Your Trucking and Shipping Needs</p>
 				<ul class="actions special">
-					<li><a href="#" class="button primary">Get a Quote</a></li>
-					<li><a href="#" class="button">Our Services</a></li>
+					<li><a href="quote/get_quote.php" class="button primary">Get a Quote</a></li>
+					<li><a href="services.php" class="button">Our Services</a></li>
 				</ul>
 			</section>
 
@@ -295,7 +295,7 @@ if ($is_logged_in) {
 				<h2>Request a Free Quote</h2>
 				<p>Get in touch with our logistics experts for a customized shipping solution tailored to your needs.</p>
 
-				<form action="quote/quote.php" method="post">
+				<form action="quote/get_quote.php" method="post">
 					<div class="row gtr-50 gtr-uniform">
 						<div class="col-8 col-12-mobilep">
 							<input type="email" name="email" id="quoteEmail" placeholder="Email Address" required />
