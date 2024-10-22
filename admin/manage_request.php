@@ -103,7 +103,24 @@ $tableStructure = $conn->query("DESCRIBE freight_requests");
 			.edit-form input[type="text"], .edit-form input[type="date"], .edit-form select, .edit-form textarea { width: 100%; padding: 5px; }
 			.edit-form button { margin-top: 10px; }
 			.action-buttons { display: flex; gap: 5px; }
-			.action-buttons button { padding: 5px 10px; }
+			.action-buttons .button {
+				padding: 0 1em;
+				height: 2.75em;
+				line-height: 2.75em;
+				background-color: #737373; /* Changed to the requested color */
+				color: #ffffff !important;
+				text-decoration: none;
+				border: 0;
+				cursor: pointer;
+				text-align: center;
+				white-space: nowrap;
+			}
+			.action-buttons .button:hover {
+				background-color: #5a5a5a; /* A slightly darker shade for hover effect */
+			}
+			.action-buttons .button.small {
+				font-size: 0.8em;
+			}
 			#edit-forms-container { display: none; }
 			.edit-form { display: none; background-color: #f9f9f9; padding: 20px; border-radius: 5px; margin-top: 20px; }
 			.edit-form.active { display: block; }
@@ -127,6 +144,14 @@ $tableStructure = $conn->query("DESCRIBE freight_requests");
 			}
 			.edit-form form button {
 				margin-top: 10px;
+			}
+			/* Add this to ensure all buttons use the same color */
+			.button {
+				background-color: #737373 !important;
+				color: #ffffff !important;
+			}
+			.button:hover {
+				background-color: #5a5a5a !important;
 			}
 		</style>
 	</head>
@@ -175,11 +200,11 @@ $tableStructure = $conn->query("DESCRIBE freight_requests");
 									<td><?php echo $request['pickup_date']; ?></td>
 									<td><?php echo htmlspecialchars($request['status']); ?></td>
 									<td class="action-buttons">
-										<button onclick="showEditForm(<?php echo $request['request_id']; ?>)">Edit</button>
+										<button class="button small" onclick="showEditForm(<?php echo $request['request_id']; ?>)">Edit</button>
 										<form method="POST" onsubmit="return confirm('Are you sure you want to delete this request?');">
 											<input type="hidden" name="action" value="delete">
 											<input type="hidden" name="request_id" value="<?php echo $request['request_id']; ?>">
-											<button type="submit">Delete</button>
+											<button type="submit" class="button small">Delete</button>
 										</form>
 									</td>
 								</tr>
@@ -265,8 +290,8 @@ $tableStructure = $conn->query("DESCRIBE freight_requests");
 								</div>
 								
 								<div>
-									<button type="submit">Update</button>
-									<button type="button" onclick="hideEditForm(<?php echo $request['request_id']; ?>)">Cancel</button>
+									<button type="submit" class="button">Update</button>
+									<button type="button" class="button" onclick="hideEditForm(<?php echo $request['request_id']; ?>)">Cancel</button>
 								</div>
 							</form>
 						</div>

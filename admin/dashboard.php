@@ -92,7 +92,7 @@ $warehouseStats = getWarehouseRequestStats($conn);
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<title>Admin Dashboard - TruckLogix</title>
+		<title>Admin Dashboard - PEN Express</title>
 		<link rel="stylesheet" href="../assets/css/main.css">
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	</head>
@@ -101,7 +101,7 @@ $warehouseStats = getWarehouseRequestStats($conn);
 
 			<!-- Header -->
 			<header id="header">
-				<h1><a href="dashboard.php">TruckLogix Admin</a></h1>
+				<h1><a href="dashboard.php">PEN Express Admin</a></h1>
 				<nav id="nav">
 					<ul>
 						<li><a href="dashboard.php">Dashboard</a></li>
@@ -187,76 +187,103 @@ $warehouseStats = getWarehouseRequestStats($conn);
 					console.log("Document is ready");
 				});
 
-				// Freight Chart
-				var freightCtx = document.getElementById('freightChart').getContext('2d');
-				var freightData = {
-					pending: <?php echo json_encode($freightStats['pending_requests']); ?>,
-					inTransit: <?php echo json_encode($freightStats['in_transit_requests']); ?>,
-					completed: <?php echo json_encode($freightStats['completed_requests']); ?>
-				};
-				console.log('Freight Data:', freightData);
+				// Add this at the beginning of your script
+				console.log('Chart.js version:', Chart.version);
 
-				if (freightData.pending !== null && freightData.inTransit !== null && freightData.completed !== null) {
-					var freightChart = new Chart(freightCtx, {
-						type: 'pie',
-						data: {
-							labels: ['Pending', 'In Transit', 'Completed'],
-							datasets: [{
-								data: [freightData.pending, freightData.inTransit, freightData.completed],
-								backgroundColor: [
-									'rgba(255, 206, 86, 0.8)',
-									'rgba(54, 162, 235, 0.8)',
-									'rgba(75, 192, 192, 0.8)'
-								]
-							}]
-						},
-						options: {
-							responsive: true,
-							plugins: {
-								title: {
-									display: true,
-									text: 'Freight Requests'
-								},
-								legend: {
-									position: 'bottom'
+				// Freight Chart
+				var freightCtx = document.getElementById('freightChart');
+				if (!freightCtx) {
+					console.error('Freight chart canvas not found');
+				} else {
+					var freightData = {
+						pending: <?php echo json_encode($freightStats['pending_requests']); ?>,
+						inTransit: <?php echo json_encode($freightStats['in_transit_requests']); ?>,
+						completed: <?php echo json_encode($freightStats['completed_requests']); ?>
+					};
+					console.log('Freight Data:', freightData);
+
+					if (freightData.pending !== null && freightData.inTransit !== null && freightData.completed !== null &&
+						(freightData.pending > 0 || freightData.inTransit > 0 || freightData.completed > 0)) {
+						var freightChart = new Chart(freightCtx, {
+							type: 'pie',
+							data: {
+								labels: ['Pending', 'In Transit', 'Completed'],
+								datasets: [{
+									data: [freightData.pending, freightData.inTransit, freightData.completed],
+									backgroundColor: [
+										'rgba(255, 206, 86, 0.8)',
+										'rgba(54, 162, 235, 0.8)',
+										'rgba(75, 192, 192, 0.8)'
+									]
+								}]
+							},
+							options: {
+								responsive: true,
+								plugins: {
+									title: {
+										display: true,
+										text: 'Freight Requests'
+									},
+									legend: {
+										position: 'bottom'
+									}
 								}
 							}
-						}
-					});
-				} else {
-					console.error('Invalid freight data');
-					document.getElementById('freightChart').insertAdjacentHTML('afterend', '<p>Error: Unable to load freight data</p>');
+						});
+						console.log('Freight chart created');
+					} else {
+						console.error('Invalid or zero-value freight data');
+						freightCtx.insertAdjacentHTML('afterend', '<p>No freight data available</p>');
+					}
 				}
 
 				// Normal Storage Chart
-				var normalStorageCtx = document.getElementById('normalStorageChart').getContext('2d');
-				var normalStorageChart = new Chart(normalStorageCtx, {
-					type: 'pie',
-					data: {
-						labels: ['Pending', 'Approved', 'In Progress', 'Completed'],
-						datasets: [{
-							data: [
-								<?php echo $warehouseStats['normal']['pending']; ?>,
-								<?php echo $warehouseStats['normal']['approved']; ?>,
-								<?php echo $warehouseStats['normal']['in_progress']; ?>,
-								<?php echo $warehouseStats['normal']['completed']; ?>
-							],
-							backgroundColor: [
-								'rgba(255, 99, 132, 0.8)',
-								'rgba(54, 162, 235, 0.8)',
-								'rgba(255, 206, 86, 0.8)',
-								'rgba(75, 192, 192, 0.8)'
-							]
-						}]
-					},
-					options: {
-						responsive: true,
-						title: {
-							display: true,
-							text: 'Normal Storage Requests'
-						}
+				var normalStorageCtx = document.getElementById('normalStorageChart');
+				if (!normalStorageCtx) {
+					console.error('Normal storage chart canvas not found');
+				} else {
+					var normalStorageData = [
+						<?php echo $warehouseStats['normal']['pending']; ?>,
+						<?php echo $warehouseStats['normal']['approved']; ?>,
+						<?php echo $warehouseStats['normal']['in_progress']; ?>,
+						<?php echo $warehouseStats['normal']['completed']; ?>
+					];
+					console.log('Normal Storage Data:', normalStorageData);
+
+					if (normalStorageData.some(value => value > 0)) {
+						var normalStorageChart = new Chart(normalStorageCtx, {
+							type: 'pie',
+							data: {
+								labels: ['Pending', 'Approved', 'In Progress', 'Completed'],
+								datasets: [{
+									data: normalStorageData,
+									backgroundColor: [
+										'rgba(255, 99, 132, 0.8)',
+										'rgba(54, 162, 235, 0.8)',
+										'rgba(255, 206, 86, 0.8)',
+										'rgba(75, 192, 192, 0.8)'
+									]
+								}]
+							},
+							options: {
+								responsive: true,
+								plugins: {
+									title: {
+										display: true,
+										text: 'Normal Storage Requests'
+									},
+									legend: {
+										position: 'bottom'
+									}
+								}
+							}
+						});
+						console.log('Normal storage chart created');
+					} else {
+						console.error('All zero values for normal storage data');
+						normalStorageCtx.insertAdjacentHTML('afterend', '<p>No normal storage data available</p>');
 					}
-				});
+				}
 
 				// Temperature-Controlled Storage Chart
 				var tempStorageCtx = document.getElementById('tempStorageChart').getContext('2d');

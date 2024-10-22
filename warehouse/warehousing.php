@@ -119,16 +119,24 @@ ini_set('display_errors', 1);
 					<div class="row">
 						<div class="col-6 col-12-mobilep">
 							<h4>Normal Storage</h4>
-							<ul class="actions special">
-								<li><a href="normal_storage_form.php" class="button primary">Request Normal Storage</a></li>
-								<li><a href="view_normal_storage_bookings.php" class="button">View Normal Bookings</a></li>
+							<ul class="actions special" style="display: flex; flex-direction: column; align-items: flex-start;">
+								<li style="width: 100%; margin-bottom: 1em;">
+									<a href="normal_storage_form.php" class="button primary large" style="width: auto; min-width: 60%;">Request Normal Storage</a>
+								</li>
+								<li style="width: 100%;">
+									<a href="view_normal_storage_bookings.php" class="button large" style="width: auto; min-width: 60%;">View Normal Bookings</a>
+								</li>
 							</ul>
 						</div>
 						<div class="col-6 col-12-mobilep">
 							<h4>Temperature-Controlled Storage</h4>
-							<ul class="actions special">
-								<li><a href="temperature_controlled_storage_form.php" class="button primary">Request Temp-Controlled</a></li>
-								<li><a href="view_temperature_controlled_bookings.php" class="button">View Temp-Controlled Bookings</a></li>
+							<ul class="actions special" style="display: flex; flex-direction: column; align-items: flex-start;">
+								<li style="width: 100%; margin-bottom: 1em;">
+									<a href="temperature_controlled_storage_form.php" class="button primary large" style="width: auto; min-width: 60%;">Request Temp-Controlled</a>
+								</li>
+								<li style="width: 100%;">
+									<a href="view_temperature_controlled_bookings.php" class="button large" style="width: auto; min-width: 60%;">View Temp-Controlled Bookings</a>
+								</li>
 							</ul>
 						</div>
 					</div>

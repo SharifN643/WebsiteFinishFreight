@@ -45,7 +45,7 @@ if ($result->num_rows === 0) {
 $request = $result->fetch_assoc();
 
 // Fetch additional services
-$sql_additional = "SELECT service_name FROM {$type}_storage_additional_services WHERE request_id = ?";
+$sql_additional = "SELECT id, request_id, service_name FROM storage_additional_services WHERE request_id = ?";
 $stmt_additional = $conn->prepare($sql_additional);
 $stmt_additional->bind_param("i", $id);
 $stmt_additional->execute();
@@ -53,12 +53,17 @@ $result_additional = $stmt_additional->get_result();
 $additional_services = $result_additional->fetch_all(MYSQLI_ASSOC);
 
 // Fetch other services
-$sql_other = "SELECT service_description FROM {$type}_storage_other_services WHERE request_id = ?";
-$stmt_other = $conn->prepare($sql_other);
-$stmt_other->bind_param("i", $id);
-$stmt_other->execute();
-$result_other = $stmt_other->get_result();
-$other_services = $result_other->fetch_all(MYSQLI_ASSOC);
+$stmt_other = $conn->prepare("SELECT id, request_id, service_description FROM storage_other_services WHERE request_id = ?");
+if ($stmt_other->execute([$id])) {
+    $result_other = $stmt_other->get_result();
+    $other_services = [];
+    while ($row = $result_other->fetch_assoc()) {
+        $other_services[] = $row['service_description'];
+    }
+    // Now $other_services is an array of other service descriptions for this request
+} else {
+    // Handle error
+}
 
 ?>
 
@@ -120,7 +125,7 @@ $other_services = $result_other->fetch_all(MYSQLI_ASSOC);
                 <?php if (!empty($other_services)): ?>
                     <ul>
                         <?php foreach ($other_services as $service): ?>
-                            <li><?php echo htmlspecialchars($service['service_description']); ?></li>
+                            <li><?php echo htmlspecialchars($service); ?></li>
                         <?php endforeach; ?>
                     </ul>
                 <?php else: ?>

@@ -104,6 +104,14 @@ if ($is_logged_in) {
 				border-radius: 5px;
 				text-align: center;
 			}
+			/* Custom style for Freight Transport button */
+			.button.primary.freight-button {
+				background-color: #666666; /* Change this to your desired color */
+				color: white; /* This sets the text color */
+			}
+			.button.primary.freight-button:hover {
+				background-color: #737373; /* Slightly darker shade for hover effect */
+			}
 		</style>
 	</head>
 	<body class="landing is-preload">
@@ -124,7 +132,6 @@ if ($is_logged_in) {
 								<ul>
 									<li><a href="freight/freight.php">Freight Transport</a></li>
 									<li><a href="warehouse/warehousing.php">Warehousing</a></li>
-									<li><a href="logistics.php">Logistics Solutions</a></li>
 									<li>
 										<a href="#">Specialized Services</a>
 										<ul>
@@ -202,7 +209,7 @@ if ($is_logged_in) {
 				<p>Efficient Solutions for All Your Trucking and Shipping Needs</p>
 				<ul class="actions special">
 					<li><a href="quote/get_quote.php" class="button primary">Get a Quote</a></li>
-					<li><a href="services.php" class="button">Our Services</a></li>
+					<li><a href="services.php" class="button">Our Pricing</a></li>
 				</ul>
 			</section>
 
@@ -215,9 +222,8 @@ if ($is_logged_in) {
 							<p>Choose a service to get started:</p>
 						</header>
 						<ul class="actions special">
-							<li><a href="freight/freight.php" class="button primary">Freight Transport</a></li>
+							<li><a href="freight/freight.php" class="button primary freight-button">Freight Transport</a></li>
 							<li><a href="warehouse/warehousing.php" class="button">Warehousing</a></li>
-							<li><a href="logistics.php" class="button">Logistics Solutions</a></li>
 						</ul>
 					</section>
 				<?php else: ?>
@@ -290,21 +296,15 @@ if ($is_logged_in) {
 				<?php endif; ?>
 			</section>
 
-			<!-- CTA Section -->
-			<section id="cta">
-				<h2>Request a Free Quote</h2>
-				<p>Get in touch with our logistics experts for a customized shipping solution tailored to your needs.</p>
-
-				<form action="quote/get_quote.php" method="post">
-					<div class="row gtr-50 gtr-uniform">
-						<div class="col-8 col-12-mobilep">
-							<input type="email" name="email" id="quoteEmail" placeholder="Email Address" required />
-						</div>
-						<div class="col-4 col-12-mobilep">
-							<input type="submit" value="Get Quote" class="fit" />
-						</div>
-					</div>
-				</form>
+			<!-- Customer Service Section -->
+			<section id="customer-service" class="box special">
+				<header class="major">
+					<h2>Need Assistance?</h2>
+					<p>For further information or if you have any questions, please don't hesitate to reach out.</p>
+				</header>
+				<ul class="actions special">
+					<li><a href="mailto:CustomerService@gmail.com" class="button primary icon solid fa-envelope">Contact Customer Service</a></li>
+				</ul>
 			</section>
 
 			<!-- Footer -->
